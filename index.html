@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -249,6 +250,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .db-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,86,214,0.08);border:1px solid rgba(88,86,214,0.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;color:var(--accent);margin:3px}
 .db-tag .count{background:var(--accent);color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-family:var(--mono)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="app">
@@ -505,6 +507,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 <div class="notif" id="notif"></div>
 
 <script>
+// ─── SUPABASE CONFIG ─────────────────────────────────────────
+const SUPABASE_URL = "https://tdkundlrwyhpvrtilgta.supabase.co";
+const SUPABASE_KEY = "sb_publishable_lGzNozLGIfbyo_mQ5OAiow_sbr7VnS4";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // ─── CONSTANTS ───────────────────────────────────────────────
 const TEAM=['Ana','Jassiel','Maria'];
 const CANALES=['SEO','Email','Instagram','LinkedIn','Evento'];
@@ -733,13 +740,13 @@ function renderLeads(){
       <td><span class="tag ${TAG_CLS[l.estado]||''}">${ESTADO_L[l.estado]}</span></td>
       <td><div style="display:flex;align-items:center;gap:6px">${av(l.responsable,20)}<span>${l.responsable}</span></div></td>
       <td style="color:var(--text3);font-family:var(--mono);font-size:11px">${l.fecha}</td>
-      <td><select style="background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:11px;font-family:var(--font);outline:none;cursor:pointer" onchange="updateLeadEstado(${l.id},this.value)">
+      <td><select style="background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:11px;font-family:var(--font);outline:none;cursor:pointer" onchange="updateLeadEstado('${l.id}',this.value)">
         ${Object.entries(ESTADO_L).map(([k,v])=>`<option value="${k}" ${k===l.estado?'selected':''}>${v}</option>`).join('')}
       </select></td>
     </tr>`).join('')||`<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text3)">Sin leads</td></tr>`;
   document.getElementById('badge-leads').textContent=leads.filter(l=>l.estado==='nuevo').length;
 }
-function updateLeadEstado(id,estado){const l=leads.find(x=>x.id===id);if(l){l.estado=estado;notify('Lead: '+ESTADO_L[estado]);renderLeads();}}
+async function updateLeadEstado(id,estado){const l=leads.find(x=>String(x.id)===String(id));if(l){l.estado=estado;notify('Lead: '+ESTADO_L[estado]);renderLeads();await supabaseClient.from('leads').update({estado}).eq('id',id);}}
 function filterLeads(estado,el){leadsEstadoFilter=estado;document.querySelectorAll('#page-leads .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderLeads();}
 function toggleLeadsResp(name){leadsRespFilter=leadsRespFilter===name?null:name;['Ana','Jassiel','Maria'].forEach(n=>{const b=document.getElementById('rb-'+n);if(b)b.className='resp-btn'+(leadsRespFilter===n?' ractive-'+n.toLowerCase().slice(0,3):'');});renderLeads();}
 
@@ -748,7 +755,7 @@ function renderContenido(){
   let data=contenidos;
   if(contenidoFilter!=='todos')data=data.filter(c=>c.estado===contenidoFilter);
   document.getElementById('contenido-grid').innerHTML=data.map(c=>`
-    <div class="content-card" onclick="openContenidoDetail(${c.id})">
+    <div class="content-card" onclick="openContenidoDetail('${c.id}')">
       <div class="cc-top">
         <div class="cc-channel"><span class="canal-badge ${c.canal==='Instagram'?'cb-ig':'cb-li'}">${c.canal}</span><span class="cc-tipo">${c.tipo}</span></div>
         <div class="cc-title">${c.tema}</div>
@@ -765,17 +772,17 @@ function renderContenido(){
         <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text3)">${av('Maria',15)} <span>diseño</span></div>
         <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text3)">${av('Jassiel',15)} <span>pub</span></div>
         <div style="margin-left:auto">
-          <select style="background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--text);font-size:10px;font-family:var(--font);outline:none;cursor:pointer" onclick="event.stopPropagation()" onchange="updateContenidoEstado(${c.id},this.value)">
+          <select style="background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--text);font-size:10px;font-family:var(--font);outline:none;cursor:pointer" onclick="event.stopPropagation()" onchange="updateContenidoEstado('${c.id}',this.value)">
             ${['idea','redaccion','diseño','revision','aprobado','programado','publicado'].map(s=>`<option value="${s}" ${s===c.estado?'selected':''}>${s}</option>`).join('')}
           </select>
         </div>
       </div>
     </div>`).join('')||'<div class="section-empty" style="grid-column:1/-1">Sin contenidos</div>';
 }
-function updateContenidoEstado(id,estado){const c=contenidos.find(x=>x.id===id);if(c){c.estado=estado;notify('Estado: '+estado);renderContenido();}}
+async function updateContenidoEstado(id,estado){const c=contenidos.find(x=>String(x.id)===String(id));if(c){c.estado=estado;notify('Estado: '+estado);renderContenido();await supabaseClient.from('contenidos').update({estado}).eq('id',id);}}
 function filterContenido(estado,el){contenidoFilter=estado;document.querySelectorAll('#page-contenido .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderContenido();}
 function openContenidoDetail(id){
-  const c=contenidos.find(x=>x.id===id);if(!c)return;
+  const c=contenidos.find(x=>String(x.id)===String(id));if(!c)return;
   document.getElementById('detail-content').innerHTML=`
     <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;padding-right:32px">${c.tema}</h2>
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
@@ -811,7 +818,7 @@ function openContenidoDetail(id){
   openDetail();
 }
 function saveContenidoDetail(id){
-  const c=contenidos.find(x=>x.id===id);if(!c)return;
+  const c=contenidos.find(x=>String(x.id)===String(id));if(!c)return;
   c.copy=document.getElementById('dc-copy').value;
   c.notas=document.getElementById('dc-notas').value;
   closeDetail();notify('Contenido guardado');renderContenido();
@@ -839,7 +846,7 @@ function renderCalendar(){
     const eventsHtml=dayContenidos.map(c=>{
       const color=c.canal==='Instagram'?'rgba(255,45,85,0.15)':'rgba(90,200,250,0.15)';
       const tc=c.canal==='Instagram'?'var(--pink)':'#0a84ff';
-      return`<div class="cal-event" style="background:${color};color:${tc}" onclick="event.stopPropagation();openContenidoDetail(${c.id})" title="${c.tema}">${c.tema}</div>`;
+      return`<div class="cal-event" style="background:${color};color:${tc}" onclick="event.stopPropagation();openContenidoDetail('${c.id}')" title="${c.tema}">${c.tema}</div>`;
     }).join('');
     html+=`<div class="cal-day${isToday?' today':''}" onclick="calDayClick('${dateStr}')">
       <div class="cal-date${isToday?' today-num':''}">${d}</div>
@@ -873,7 +880,7 @@ function renderTareas(){
       </div>
       <div class="kanban-body">
         ${cards.map(t=>`
-          <div class="k-card" onclick="avanzarTarea(${t.id})" title="Clic para avanzar">
+          <div class="k-card" onclick="avanzarTarea('${t.id}')" title="Clic para avanzar">
             <div class="k-title">${t.titulo}</div>
             <div class="k-footer">
               <div style="display:flex;align-items:center;gap:5px">${av(t.responsable,18)}<span class="k-area">${t.area}</span></div>
@@ -885,7 +892,7 @@ function renderTareas(){
   const v=tareas.filter(t=>t.estado!=='completada'&&t.fecha<today()).length;
   document.getElementById('badge-tareas').textContent=v;
 }
-function avanzarTarea(id){const t=tareas.find(x=>x.id===id);const fl=['pendiente','en_proceso','revision','completada'];const i=fl.indexOf(t.estado);if(i<fl.length-1){t.estado=fl[i+1];renderTareas();notify('→ '+{pendiente:'Pendiente',en_proceso:'En proceso',revision:'En revisión',completada:'Completada'}[t.estado]);}else notify('Ya está completada');}
+async function avanzarTarea(id){const t=tareas.find(x=>String(x.id)===String(id));if(!t)return;const fl=['pendiente','en_proceso','revision','completada'];const i=fl.indexOf(t.estado);if(i<fl.length-1){t.estado=fl[i+1];renderTareas();notify('→ '+{pendiente:'Pendiente',en_proceso:'En proceso',revision:'En revisión',completada:'Completada'}[t.estado]);await supabaseClient.from('tareas').update({estado:t.estado}).eq('id',id);}else notify('Ya está completada');}
 function toggleTareasResp(name){tareasRespFilter=tareasRespFilter===name?null:name;['Ana','Jassiel','Maria'].forEach(n=>{const b=document.getElementById('tb-'+n);if(b)b.className='resp-btn'+(tareasRespFilter===n?' ractive-'+n.toLowerCase().slice(0,3):'');});renderTareas();}
 
 // ─── EMAIL ───────────────────────────────────────────────────
@@ -901,7 +908,7 @@ function renderEmails(){
     <div class="kpi-card"><div class="kpi-label">Leads generados</div><div class="kpi-value">${totalLeadsE}</div><div class="kpi-delta up">Email → lead</div></div>`;
   // Bases
   document.getElementById('bases-list').innerHTML=bases.map(b=>`
-    <div class="db-tag" onclick="editBase(${b.id})"><span>${b.nombre}</span><span class="count">${b.leads.toLocaleString()}</span></div>`).join('');
+    <div class="db-tag" onclick="editBase('${b.id}')"><span>${b.nombre}</span><span class="count">${b.leads.toLocaleString()}</span></div>`).join('');
   // Campañas
   document.getElementById('email-list').innerHTML=emails.map(e=>`
     <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
@@ -918,24 +925,24 @@ function renderEmails(){
           <div style="text-align:center"><div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--green)">${e.leads}</div><div style="font-size:10px;color:var(--text3)">leads</div></div>
           <div style="text-align:center"><div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--accent)">${e.ventas}</div><div style="font-size:10px;color:var(--text3)">→ventas</div></div>
           ${e.htmlCode?`<button class="btn btn-ghost btn-sm" onclick="previewHTML('${e.id}','email')">Preview</button>`:''}
-          <button class="btn btn-ghost btn-sm" onclick="openEmailDetail(${e.id})">Editar</button>
+          <button class="btn btn-ghost btn-sm" onclick="openEmailDetail('${e.id}')">Editar</button>
         </div>
       </div>
     </div>`).join('');
 }
 function openEmailDetail(id){
-  const e=emails.find(x=>x.id===id);if(!e)return;
+  const e=emails.find(x=>String(x.id)===String(id));if(!e)return;
   document.getElementById('detail-content').innerHTML=`
     <h2 style="font-size:17px;font-weight:700;margin-bottom:16px;padding-right:32px">${e.nombre}</h2>
     <div class="section-divider"></div>
     <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">BASES DE DATOS</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
-      ${bases.map(b=>`<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px"><input type="checkbox" ${(e.bases||[]).includes(b.nombre)?'checked':''} onchange="toggleEmailBase(${id},'${b.nombre}',this.checked)"> ${b.nombre} <span style="color:var(--text3)">(${b.leads.toLocaleString()})</span></label>`).join('')}
+      ${bases.map(b=>`<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px"><input type="checkbox" ${(e.bases||[]).includes(b.nombre)?'checked':''} onchange="toggleEmailBase('${id}','${b.nombre}',this.checked)"> ${b.nombre} <span style="color:var(--text3)">(${b.leads.toLocaleString()})</span></label>`).join('')}
     </div>
     <div class="section-divider"></div>
     <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">CÓDIGO HTML DEL CORREO</div>
     <textarea id="de-html" class="code-editor" rows="12" placeholder="Pega aquí el código HTML del correo...">${e.htmlCode||''}</textarea>
-    <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="previewEmailHTML(${id})">👁 Vista previa</button>
+    <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="previewEmailHTML('${id}')">👁 Vista previa</button>
     <div id="de-preview" style="margin-top:10px"></div>
     <div class="section-divider"></div>
     <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">MÉTRICAS</div>
@@ -946,7 +953,7 @@ function openEmailDetail(id){
       <div><div class="form-label">Leads generados</div><input type="number" class="form-input" id="de-leads" value="${e.leads}"></div>
       <div><div class="form-label">Leads → Ventas</div><input type="number" class="form-input" id="de-ventas" value="${e.ventas}"></div>
     </div>
-    <button class="btn btn-primary" style="width:100%" onclick="saveEmailDetail(${id})">Guardar cambios</button>`;
+    <button class="btn btn-primary" style="width:100%" onclick="saveEmailDetail('${id}')">Guardar cambios</button>`;
   openDetail();
 }
 function previewEmailHTML(id){
@@ -955,9 +962,9 @@ function previewEmailHTML(id){
   if(!html){prev.innerHTML='';return;}
   prev.innerHTML=`<div style="font-size:11px;color:var(--text3);margin-bottom:6px">Vista previa:</div><iframe class="preview-iframe" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
 }
-function toggleEmailBase(id,nombre,checked){const e=emails.find(x=>x.id===id);if(!e)return;if(!e.bases)e.bases=[];if(checked){if(!e.bases.includes(nombre))e.bases.push(nombre);}else{e.bases=e.bases.filter(b=>b!==nombre);}}
+function toggleEmailBase(id,nombre,checked){const e=emails.find(x=>String(x.id)===String(id));if(!e)return;if(!e.bases)e.bases=[];if(checked){if(!e.bases.includes(nombre))e.bases.push(nombre);}else{e.bases=e.bases.filter(b=>b!==nombre);}}
 function saveEmailDetail(id){
-  const e=emails.find(x=>x.id===id);if(!e)return;
+  const e=emails.find(x=>String(x.id)===String(id));if(!e)return;
   e.htmlCode=document.getElementById('de-html').value;
   e.enviados=parseInt(document.getElementById('de-env').value)||0;
   e.open=parseFloat(document.getElementById('de-open').value)||0;
@@ -985,11 +992,11 @@ function renderSEO(){
       <td style="color:var(--text3);font-size:11px;font-family:var(--mono)">${a.fecha}</td>
       <td><span style="font-weight:700;font-family:var(--mono)">${a.trafico.toLocaleString()}</span></td>
       <td><span style="font-weight:700;color:var(--green);font-family:var(--mono)">${a.leads}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openSEODetail(${a.id})">Editar / Ver</button></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openSEODetail('${a.id}')">Editar / Ver</button></td>
     </tr>`).join('');
 }
 function openSEODetail(id){
-  const a=articulos.find(x=>x.id===id);if(!a)return;
+  const a=articulos.find(x=>String(x.id)===String(id));if(!a)return;
   document.getElementById('detail-content').innerHTML=`
     <h2 style="font-size:17px;font-weight:700;margin-bottom:4px;padding-right:32px">${a.titulo}</h2>
     <div style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--mono)">${a.kw} · ${a.fecha}</div>
@@ -1006,9 +1013,9 @@ function openSEODetail(id){
     <div class="section-divider"></div>
     <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">CÓDIGO HTML DEL ARTÍCULO</div>
     <textarea id="sa-html" class="code-editor" rows="14" placeholder="Pega aquí el HTML del artículo de blog...">${a.htmlCode||''}</textarea>
-    <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="previewSEOHTML(${id})">👁 Vista previa</button>
+    <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="previewSEOHTML('${id}')">👁 Vista previa</button>
     <div id="sa-preview" style="margin-top:10px"></div>
-    <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="saveSEODetail(${id})">Guardar</button>`;
+    <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="saveSEODetail('${id}')">Guardar</button>`;
   openDetail();
 }
 function previewSEOHTML(id){
@@ -1018,7 +1025,7 @@ function previewSEOHTML(id){
   prev.innerHTML=`<div style="font-size:11px;color:var(--text3);margin-bottom:6px">Vista previa:</div><iframe class="preview-iframe" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
 }
 function saveSEODetail(id){
-  const a=articulos.find(x=>x.id===id);if(!a)return;
+  const a=articulos.find(x=>String(x.id)===String(id));if(!a)return;
   a.htmlCode=document.getElementById('sa-html').value;
   a.sesiones=parseInt(document.getElementById('sa-ses').value)||0;
   a.trafico=a.sesiones;
@@ -1178,8 +1185,75 @@ function saveModal(){if(!currentModal)return;const ok=FORMS[currentModal].save()
 // ─── NOTIFICATIONS ────────────────────────────────────────────
 function notify(msg){const el=document.getElementById('notif');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
 
+
+// ─── SUPABASE DATA LAYER ─────────────────────────────────────
+function normalizeRows(table, rows){
+  rows = rows || [];
+  if(table==='bases_datos') return rows.map(r=>({id:r.id,nombre:r.nombre,leads:r.cantidad_leads||0,descripcion:r.descripcion||''}));
+  if(table==='email_campaigns') return rows.map(r=>({id:r.id,nombre:r.nombre,fecha:r.fecha||'—',bases:Array.isArray(r.base_datos)?r.base_datos:(r.base_datos?[r.base_datos]:[]),obj:r.objetivo||'—',asunto:r.asunto||'—',htmlCode:r.html_code||'',enviados:r.enviados||0,open:r.open_rate||0,click:r.click_rate||0,leads:r.leads||0,ventas:r.ventas||0}));
+  if(table==='articulos') return rows.map(r=>({id:r.id,titulo:r.titulo,kw:r.palabra_clave||'—',fecha:r.fecha||'—',trafico:r.trafico||0,leads:r.leads||0,htmlCode:r.html_code||'',sesiones:r.sesiones||r.trafico||0,rebote:r.rebote||0,pos:r.posicion||0,clics:r.clics||0,impresiones:r.impresiones||0}));
+  if(table==='eventos') return rows.map(r=>({id:r.id,nombre:r.nombre,tipo:r.tipo||'—',fecha:r.fecha||'—',obj:r.objetivo||'—',registrados:r.registrados||0,asistentes:r.asistentes||0,ventas:r.ventas||0}));
+  if(table==='campanas') return rows.map(r=>({id:r.id,nombre:r.nombre,obj:r.objetivo||'—',canal:r.canal||'—',inicio:r.inicio||'—',fin:r.fin||'—',responsable:r.responsable||'—',leads:r.leads||0,ventas:r.ventas||0,resultado:r.resultado||'activa'}));
+  return rows;
+}
+
+function toDbPayload(type, item){
+  const copy={...item}; delete copy.id; delete copy.created_at; delete copy.updated_at;
+  if(type==='email') return {nombre:item.nombre,fecha:item.fecha==='—'?null:item.fecha,base_datos:(item.bases||[]).join(', '),objetivo:item.obj,asunto:item.asunto,enviados:item.enviados||0,open_rate:item.open||0,click_rate:item.click||0,leads:item.leads||0,ventas:item.ventas||0,html_code:item.htmlCode||''};
+  if(type==='basedatos') return {nombre:item.nombre,cantidad_leads:item.leads||0,descripcion:item.descripcion||null};
+  if(type==='articulo') return {titulo:item.titulo,palabra_clave:item.kw,fecha:item.fecha==='—'?null:item.fecha,trafico:item.trafico||0,leads:item.leads||0,sesiones:item.sesiones||0,rebote:item.rebote||0,posicion:item.pos||0,html_code:item.htmlCode||''};
+  if(type==='evento') return {nombre:item.nombre,tipo:item.tipo,fecha:item.fecha==='—'?null:item.fecha,objetivo:item.obj,registrados:item.registrados||0,asistentes:item.asistentes||0,ventas:item.ventas||0};
+  if(type==='campana') return {nombre:item.nombre,objetivo:item.obj,canal:item.canal,inicio:item.inicio||null,fin:item.fin==='—'?null:item.fin,responsable:item.responsable,leads:item.leads||0,ventas:item.ventas||0,resultado:item.resultado||'activa'};
+  if(type==='contenido') return {canal:item.canal,tipo:item.tipo,tema:item.tema,objetivo:item.objetivo,estado:item.estado,alcance:item.alcance||0,interacciones:item.interacciones||0,clics:item.clics||0,leads:item.leads||0,fecha:item.fecha==='—'?null:item.fecha,copy:item.copy||'',notas:item.notas||''};
+  if(type==='tarea') return {titulo:item.titulo,area:item.area,responsable:item.responsable,prioridad:item.prioridad,estado:item.estado,fecha:item.fecha||null};
+  if(type==='lead') return {empresa:item.empresa,canal:item.canal,campana:item.campana,tipo:item.tipo,estado:item.estado,responsable:item.responsable,fecha:item.fecha||null};
+  return copy;
+}
+
+const DB_MAP={lead:{table:'leads',arr:()=>leads,set:v=>leads=v},tarea:{table:'tareas',arr:()=>tareas,set:v=>tareas=v},contenido:{table:'contenidos',arr:()=>contenidos,set:v=>contenidos=v},email:{table:'email_campaigns',arr:()=>emails,set:v=>emails=v},basedatos:{table:'bases_datos',arr:()=>bases,set:v=>bases=v},articulo:{table:'articulos',arr:()=>articulos,set:v=>articulos=v},evento:{table:'eventos',arr:()=>eventos,set:v=>eventos=v},campana:{table:'campanas',arr:()=>campanas,set:v=>campanas=v}};
+
+async function loadTable(table, setter){
+  const {data,error}=await supabaseClient.from(table).select('*').order('created_at',{ascending:false});
+  if(error){console.error('Error cargando '+table,error); return;}
+  setter(normalizeRows(table,data));
+}
+
+async function loadSupabaseData(){
+  notify('Conectando con Supabase...');
+  await Promise.all([
+    loadTable('leads',v=>leads=v), loadTable('tareas',v=>tareas=v), loadTable('contenidos',v=>contenidos=v),
+    loadTable('campanas',v=>campanas=v), loadTable('email_campaigns',v=>emails=v), loadTable('bases_datos',v=>bases=v),
+    loadTable('articulos',v=>articulos=v), loadTable('eventos',v=>eventos=v)
+  ]);
+  notify('Datos cargados desde Supabase');
+  renderPage(currentPage);
+}
+
+async function saveModal(){
+  if(!currentModal)return;
+  const cfg=DB_MAP[currentModal];
+  const beforeIds=cfg?new Set(cfg.arr().map(x=>String(x.id))):new Set();
+  const ok=FORMS[currentModal].save();
+  if(ok===false)return;
+  closeModal();
+  if(cfg){
+    const arr=cfg.arr();
+    const created=arr.find(x=>!beforeIds.has(String(x.id)));
+    if(created){
+      const {data,error}=await supabaseClient.from(cfg.table).insert([toDbPayload(currentModal,created)]).select().single();
+      if(error){console.error(error);notify('Guardado local, pero falló Supabase');renderPage(currentPage);return;}
+      const normalized=normalizeRows(cfg.table,[data])[0];
+      const idx=arr.findIndex(x=>String(x.id)===String(created.id));
+      if(idx>=0){arr[idx]=normalized;cfg.set(arr);}
+    }
+  }
+  notify('Guardado correctamente');
+  renderPage(currentPage);
+}
+
 // ─── INIT ─────────────────────────────────────────────────────
-renderDashboard();
+loadSupabaseData();
+
 </script>
 </body>
 </html>
