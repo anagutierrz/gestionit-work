@@ -448,7 +448,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
       <div class="page" id="page-usuarios">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div style="font-size:15px;font-weight:700">Gestión de usuarios</div>
-          <button class="btn btn-primary btn-sm" onclick="openUserModal()">+ Invitar usuario</button>
+          <button class="btn btn-primary btn-sm" onclick="openUserModal()">¿Cómo agregar usuarios?</button>
         </div>
         <div class="users-grid" id="users-grid"><p style="color:var(--text3);font-size:12px">Cargando...</p></div>
       </div>
@@ -476,16 +476,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 <!-- MODAL USUARIOS -->
 <div class="modal-backdrop" id="modal-user">
   <div class="modal-inner">
-    <div style="font-size:15px;font-weight:700;margin-bottom:16px">Invitar usuario</div>
-    <div style="background:#EEF2FF;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:12px;color:#5856D6">El usuario recibirá un correo para crear su contraseña.</div>
-    <div class="form-row"><label class="form-label">Correo *</label><input class="form-input" id="u-email" type="email" placeholder="usuario@gestionit.com.do"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="form-row"><label class="form-label">Nombre</label><input class="form-input" id="u-name" placeholder="Nombre completo"></div>
-      <div class="form-row"><label class="form-label">Rol</label><select class="form-select" id="u-role"><option value="viewer">Viewer</option><option value="manager">Manager</option><option value="admin">Admin</option></select></div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:14px">Agregar nuevo usuario</div>
+    <div style="background:#FEF3C7;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#92400E;line-height:1.6;border-left:3px solid #F59E0B">
+      <strong>Para agregar un usuario nuevo:</strong><br>
+      1. Ve a <strong>supabase.com</strong> → tu proyecto → <strong>Authentication → Users</strong><br>
+      2. Clic en <strong>"Invite user"</strong> e ingresa el correo<br>
+      3. El usuario recibirá un email para crear su contraseña<br>
+      4. Regresa aquí y asigna su rol con el botón "Cambiar rol"
     </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
-      <button class="btn btn-ghost" onclick="closeUserModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="inviteUser()">Enviar invitación</button>
+    <div style="background:#F0FFF4;border-radius:8px;padding:10px 14px;font-size:12px;color:#065F46;line-height:1.6">
+      <strong>¿Por qué no puedo invitar desde aquí?</strong><br>
+      Por seguridad, la creación de usuarios requiere credenciales de administrador que no se pueden exponer en el navegador.
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-primary" onclick="closeUserModal()">Entendido</button>
     </div>
   </div>
 </div>
