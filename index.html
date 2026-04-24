@@ -893,10 +893,11 @@ a { color: inherit; text-decoration: none; }
 <div class="toast" id="toast"></div>
 
 <script>
-
 // ============================================================
-const SUPABASE_URL = 'https://tdkundlrwyhpvrtilgta.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRka3VuZGxyd3locHZydGlsZ3RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5ODE4MjgsImV4cCI6MjA5MjU1NzgyOH0.BB7swIJRqStH6LovHHnE-1ynIIftgeGj0vnArt8KTMM';
+// CONFIGURACIÓN — Reemplazar con tus credenciales de Supabase
+// ============================================================
+const SUPABASE_URL = 'https://TU_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
 // ============================================================
 
 const { createClient } = supabase;
@@ -910,42 +911,67 @@ let chartPipeline, chartSolutions, chartFunnel;
 
 // ── INIT ───────────────────────────────────────────────────
 async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  hide('loading-screen');
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    hide('loading-screen');
 
-  if (session) {
-    await loadUserProfile(session.user);
-    showApp();
-  } else {
-    show('auth-screen');
-  }
-
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
+    if (session?.user) {
       await loadUserProfile(session.user);
       showApp();
-    } else if (event === 'SIGNED_OUT') {
-      hide('app'); show('auth-screen');
+    } else {
+      show('auth-screen');
     }
-  });
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        await loadUserProfile(session.user);
+        showApp();
+      } else if (event === 'SIGNED_OUT') {
+        hide('app'); show('auth-screen');
+      }
+    });
+  } catch(e) {
+    hide('loading-screen');
+    show('auth-screen');
+  }
 }
 
 async function loadUserProfile(user) {
   currentUser = user;
-  const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
-  currentProfile = data || { email: user.email, full_name: user.email.split('@')[0], role: 'viewer' };
 
-  // Update sidebar
+  try {
+    const { data, error } = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+
+    if (data) {
+      currentProfile = data;
+    } else {
+      // Perfil no existe — crearlo automáticamente
+      const fallback = {
+        id: user.id,
+        email: user.email,
+        full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+        avatar_initials: (user.email.slice(0,2)).toUpperCase(),
+        role: 'admin',
+        is_active: true
+      };
+      const { data: inserted } = await sb.from('profiles').upsert(fallback).select().maybeSingle();
+      currentProfile = inserted || fallback;
+    }
+  } catch (e) {
+    // Si falla cualquier cosa, usar datos básicos del auth sin bloquear
+    currentProfile = {
+      email: user.email,
+      full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+      role: 'admin',
+      is_active: true
+    };
+  }
+
   const name = currentProfile.full_name || currentProfile.email;
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
-  el('sidebar-avatar').textContent = initials;
+  el('sidebar-avatar').textContent = initials || 'U';
   el('sidebar-name').textContent = name;
-  el('sidebar-role').textContent = currentProfile.role;
-
-  // Hide admin nav for non-admins
-  if (currentProfile.role !== 'admin') {
-    el('admin-section').style.display = 'none';
-  }
+  el('sidebar-role').textContent = currentProfile.role || 'admin';
 }
 
 function showApp() {
@@ -967,10 +993,20 @@ async function doLogin() {
   const btn = el('login-btn');
   btn.disabled = true; btn.textContent = 'Verificando...';
 
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  btn.disabled = false; btn.textContent = 'Entrar al portal';
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    
+    if (error) {
+      showMsg('login-error', errorMsg(error.message));
+    } else if (data?.user) {
+      await loadUserProfile(data.user);
+      showApp();
+    }
+  } catch(e) {
+    showMsg('login-error', 'Error de conexión. Intenta de nuevo.');
+  }
 
-  if (error) showMsg('login-error', errorMsg(error.message));
+  btn.disabled = false; btn.textContent = 'Entrar al portal';
 }
 
 async function doReset() {
@@ -998,11 +1034,14 @@ async function doLogout(e) {
 
 // ── DASHBOARD ─────────────────────────────────────────────
 async function loadDashboard() {
-  const { data: metrics } = await sb.from('monthly_metrics').select('*').order('month', { ascending: true });
-  const { data: leads } = await sb.from('leads').select('stage, deal_value, solution').not('stage', 'in', '("cerrado_perdido")');
-
-  renderMetrics(metrics, leads);
-  renderCharts(metrics, leads);
+  try {
+    const { data: metrics } = await sb.from('monthly_metrics').select('*').order('month', { ascending: true });
+    const { data: leads } = await sb.from('leads').select('stage, deal_value, solution');
+    renderMetrics(metrics || [], leads || []);
+    renderCharts(metrics || [], leads || []);
+  } catch(e) {
+    el('metrics-grid').innerHTML = '<div style="color:var(--ink3);font-size:13px;padding:20px">Error cargando métricas. Recarga la página.</div>';
+  }
 }
 
 function renderMetrics(metrics, leads) {
