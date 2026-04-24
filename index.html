@@ -1,1259 +1,1291 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión IT · Marketing Ops</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#F2F2F7;--bg2:#FFFFFF;--bg3:#F2F2F7;--bg4:#E5E5EA;
-  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
-  --text:#1C1C1E;--text2:#48484A;--text3:#8E8E93;
-  --accent:#5856D6;--accent2:#6B68E8;
-  --green:#34C759;--amber:#FF9500;--red:#FF3B30;
-  --blue:#007AFF;--pink:#FF2D55;--teal:#5AC8FA;--indigo:#5856D6;
-  --shadow:0 1px 3px rgba(0,0,0,0.1),0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md:0 4px 6px rgba(0,0,0,0.07),0 2px 4px rgba(0,0,0,0.05);
-  --font:'Inter',sans-serif;--mono:'SF Mono','Fira Code',monospace;
-  --radius:12px;--radius-sm:8px;--radius-lg:16px;
-}
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-.app{display:flex;height:100vh;overflow:hidden}
-
-/* ── SIDEBAR ─────────────────────────────────────── */
-.sidebar{width:230px;min-width:230px;background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
-.sidebar-logo{padding:22px 18px 16px;border-bottom:1px solid var(--border)}
-.sidebar-logo .brand{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-0.4px}
-.sidebar-logo .sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:var(--mono);letter-spacing:0.3px}
-.nav-section{padding:14px 10px 6px}
-.nav-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.7px;text-transform:uppercase;padding:0 8px;margin-bottom:5px}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13px;font-weight:400;transition:all 0.12s;margin-bottom:1px}
-.nav-item:hover{background:rgba(0,0,0,0.04);color:var(--text)}
-.nav-item.active{background:rgba(88,86,214,0.1);color:var(--accent);font-weight:500}
-.nav-item .icon{font-size:15px;width:20px;text-align:center}
-.nav-item .badge{margin-left:auto;font-size:10px;font-family:var(--mono);background:rgba(255,149,0,0.15);color:var(--amber);padding:1px 7px;border-radius:10px;font-weight:600}
-.nav-item .badge.red{background:rgba(255,59,48,0.12);color:var(--red)}
-.team-section{margin-top:auto;padding:12px 10px;border-top:1px solid var(--border)}
-.team-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.7px;text-transform:uppercase;padding:0 8px;margin-bottom:8px}
-.team-member{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:var(--radius-sm);cursor:pointer;transition:background 0.12s;margin-bottom:2px}
-.team-member:hover{background:rgba(0,0,0,0.04)}
-.team-member.active-filter{background:rgba(88,86,214,0.08)}
-.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.av-ana{background:rgba(88,86,214,0.15);color:var(--accent)}
-.av-jas{background:rgba(90,200,250,0.2);color:#0a84ff}
-.av-mar{background:rgba(255,45,85,0.12);color:var(--pink)}
-.member-info .name{font-size:12.5px;font-weight:500;color:var(--text)}
-.member-info .role{font-size:10px;color:var(--text3)}
-
-/* ── MAIN ────────────────────────────────────────── */
-.main{flex:1;overflow-y:auto;background:var(--bg)}
-.topbar{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;background:rgba(242,242,247,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.topbar-title{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
-.topbar-sub{font-size:12px;color:var(--text3);margin-left:2px}
-.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-.btn{padding:7px 14px;border-radius:var(--radius-sm);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all 0.12s;letter-spacing:-0.1px}
-.btn-ghost{background:rgba(0,0,0,0.05);color:var(--text2);border:1px solid var(--border)}
-.btn-ghost:hover{background:rgba(0,0,0,0.09);color:var(--text)}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 1px 3px rgba(88,86,214,0.3)}
-.btn-primary:hover{background:var(--accent2)}
-.btn-sm{padding:5px 10px;font-size:11px}
-.btn-danger{background:rgba(255,59,48,0.1);color:var(--red);border:1px solid rgba(255,59,48,0.2)}
-.content{padding:20px 24px}
-
-/* ── CARDS / KPI ─────────────────────────────────── */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.kpi-card{background:var(--bg2);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)}
-.kpi-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-.kpi-value{font-size:28px;font-weight:700;color:var(--text);font-family:var(--mono);line-height:1;letter-spacing:-1px}
-.kpi-delta{font-size:11px;margin-top:6px;display:flex;align-items:center;gap:4px;font-weight:500}
-.kpi-delta.up{color:var(--green)}.kpi-delta.warn{color:var(--amber)}.kpi-delta.down{color:var(--red)}
-
-/* progress bar */
-.prog-track{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:8px}
-.prog-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
-
-/* ── PANELS ──────────────────────────────────────── */
-.panels-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-.panels-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
-.panel{background:var(--bg2);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border)}
-.panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
-.panel-title{font-size:13px;font-weight:600;color:var(--text)}
-.panel-action{font-size:11px;color:var(--blue);cursor:pointer;font-weight:500}
-.panel-body{padding:12px 16px}
-
-/* ── LEADS ───────────────────────────────────────── */
-.lead-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
-.lead-item:last-child{border-bottom:none}
-.lead-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.lead-info{flex:1}
-.lead-name{font-size:12.5px;font-weight:600;color:var(--text)}
-.lead-meta{font-size:11px;color:var(--text3);margin-top:1px}
-.tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;font-family:var(--mono);letter-spacing:0.2px}
-.tag-nuevo{background:rgba(0,122,255,0.1);color:var(--blue)}
-.tag-calificadomkt{background:rgba(88,86,214,0.1);color:var(--accent)}
-.tag-enviadoventas{background:rgba(52,199,89,0.12);color:var(--green)}
-.tag-enseguimiento{background:rgba(255,149,0,0.12);color:var(--amber)}
-.tag-perdido{background:rgba(255,59,48,0.1);color:var(--red)}
-.tag-sinrespuesta{background:rgba(142,142,147,0.15);color:var(--text3)}
-.tag-convertido{background:rgba(52,199,89,0.12);color:var(--green)}
-.tag-activa{background:rgba(52,199,89,0.12);color:var(--green)}
-.tag-completada{background:rgba(142,142,147,0.12);color:var(--text3)}
-.tag-proximo{background:rgba(0,122,255,0.1);color:var(--blue)}
-
-/* ── TASKS ───────────────────────────────────────── */
-.task-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
-.task-item:last-child{border-bottom:none}
-.task-check{width:17px;height:17px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;margin-top:1px;cursor:pointer;transition:all 0.12s;display:flex;align-items:center;justify-content:center;font-size:9px}
-.task-check:hover{border-color:var(--accent)}
-.task-check.done{background:var(--green);border-color:var(--green);color:#fff}
-.task-title{font-size:12.5px;color:var(--text);font-weight:500}
-.task-meta{display:flex;gap:6px;margin-top:3px;align-items:center;flex-wrap:wrap}
-.mini-avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
-
-/* ── CANAL BARS ──────────────────────────────────── */
-.canal-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.canal-row:last-child{margin-bottom:0}
-.canal-name{width:80px;font-size:12px;color:var(--text2);flex-shrink:0;font-weight:500}
-.bar-track{flex:1;height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
-.bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
-.canal-num{width:28px;text-align:right;font-size:12px;font-weight:700;font-family:var(--mono);color:var(--text)}
-
-/* ── LEADS TABLE ─────────────────────────────────── */
-.leads-table{width:100%;border-collapse:collapse}
-.leads-table th{text-align:left;padding:9px 12px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);background:var(--bg3)}
-.leads-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text);vertical-align:middle}
-.leads-table tr:hover td{background:rgba(88,86,214,0.02)}
-.canal-badge{font-size:10px;font-weight:600;font-family:var(--mono);padding:2px 8px;border-radius:20px}
-.cb-seo{background:rgba(52,199,89,0.12);color:var(--green)}
-.cb-email{background:rgba(0,122,255,0.1);color:var(--blue)}
-.cb-ig{background:rgba(255,45,85,0.1);color:var(--pink)}
-.cb-li{background:rgba(90,200,250,0.15);color:#0a84ff}
-.cb-evento{background:rgba(255,149,0,0.12);color:var(--amber)}
-
-/* ── KANBAN ──────────────────────────────────────── */
-.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.kanban-col{background:var(--bg3);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
-.kanban-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
-.kanban-title{font-size:12px;font-weight:600;color:var(--text)}
-.kanban-count{font-size:10px;font-family:var(--mono);background:var(--bg4);padding:1px 7px;border-radius:10px;color:var(--text3);font-weight:600}
-.kanban-body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:100px}
-.k-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 11px;cursor:pointer;transition:all 0.12s;box-shadow:var(--shadow)}
-.k-card:hover{box-shadow:var(--shadow-md);border-color:var(--border2)}
-.k-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:6px;line-height:1.4}
-.k-footer{display:flex;align-items:center;justify-content:space-between}
-.k-area{font-size:10px;color:var(--text3);font-family:var(--mono)}
-.k-prio{width:8px;height:8px;border-radius:50%}
-.prio-a{background:var(--red)}.prio-m{background:var(--amber)}.prio-b{background:var(--text3)}
-
-/* ── CONTENT CARDS ───────────────────────────────── */
-.content-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.content-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all 0.12s;box-shadow:var(--shadow)}
-.content-card:hover{box-shadow:var(--shadow-md)}
-.cc-top{padding:14px 14px 10px;border-bottom:1px solid var(--border)}
-.cc-channel{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.cc-tipo{font-size:10px;color:var(--text3);font-weight:500}
-.cc-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.4}
-.cc-bottom{padding:10px 14px;display:flex;align-items:center;gap:8px}
-.flow-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-/* ── CALENDAR ────────────────────────────────────── */
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px}
-.cal-header{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px}
-.cal-day-label{text-align:center;font-size:10px;font-weight:600;color:var(--text3);padding:4px 0}
-.cal-day{min-height:70px;border-radius:var(--radius-sm);border:1px solid var(--border);padding:5px;cursor:pointer;transition:background 0.1s;background:var(--bg2)}
-.cal-day:hover{background:rgba(88,86,214,0.04)}
-.cal-day.today{border-color:var(--accent);border-width:2px}
-.cal-day.other-month{background:var(--bg3);opacity:0.6}
-.cal-date{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px}
-.cal-date.today-num{color:var(--accent)}
-.cal-event{font-size:9px;border-radius:3px;padding:1px 4px;margin-bottom:2px;font-weight:500;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.cal-nav-title{font-size:14px;font-weight:600;color:var(--text);flex:1;text-align:center}
-.cal-nav-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:var(--font);font-size:13px;color:var(--text2)}
-.cal-nav-btn:hover{background:var(--bg4)}
-
-/* ── FILTER BAR ──────────────────────────────────── */
-.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-.filter-pill{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);color:var(--text2);background:var(--bg2);font-family:var(--font);transition:all 0.12s}
-.filter-pill:hover{background:var(--bg4);color:var(--text)}
-.filter-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
-.resp-filter{display:flex;gap:6px;align-items:center;margin-left:auto}
-.resp-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-family:var(--font);transition:all 0.12s;font-weight:500}
-.resp-btn:hover{background:var(--bg4)}
-.resp-btn.ractive-ana{background:rgba(88,86,214,0.1);border-color:var(--accent);color:var(--accent)}
-.resp-btn.ractive-jas{background:rgba(90,200,250,0.12);border-color:#0a84ff;color:#0a84ff}
-.resp-btn.ractive-mar{background:rgba(255,45,85,0.1);border-color:var(--pink);color:var(--pink)}
-
-/* ── CODE EDITOR ─────────────────────────────────── */
-.code-editor{width:100%;background:#1C1C1E;border:1px solid var(--border2);border-radius:var(--radius-sm);padding:12px;color:#E5E5EA;font-family:var(--mono);font-size:12px;line-height:1.6;outline:none;resize:vertical;min-height:180px}
-.code-editor:focus{border-color:var(--accent)}
-.html-preview{border:1px solid var(--border);border-radius:var(--radius-sm);min-height:120px;background:#fff;overflow:auto}
-.preview-iframe{width:100%;border:none;min-height:300px;border-radius:var(--radius-sm);display:block}
-
-/* ── METRIC ROW ──────────────────────────────────── */
-.metric-inline{display:flex;align-items:center;gap:20px;padding:12px 0;border-bottom:1px solid var(--border)}
-.metric-inline:last-child{border-bottom:none}
-.metric-val{font-size:20px;font-weight:700;font-family:var(--mono)}
-.metric-lbl{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:0.4px;margin-top:1px}
-
-/* ── PAGE ────────────────────────────────────────── */
-.page{display:none}.page.active{display:block}
-.section-empty{padding:32px;text-align:center;color:var(--text3);font-size:13px}
-
-/* ── TABS ────────────────────────────────────────── */
-.tabs{display:flex;gap:2px;background:var(--bg4);border-radius:var(--radius-sm);padding:3px;margin-bottom:18px;width:fit-content}
-.tab{padding:6px 16px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);transition:all 0.12s}
-.tab.active{background:var(--bg2);color:var(--text);box-shadow:var(--shadow)}
-
-/* ── MODAL ───────────────────────────────────────── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.2s;backdrop-filter:blur(4px)}
-.modal-overlay.show{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border-radius:var(--radius-lg);padding:24px;width:540px;max-width:95vw;transform:translateY(12px) scale(0.98);transition:all 0.2s;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
-.modal-overlay.show .modal{transform:translateY(0) scale(1)}
-.modal-title{font-size:16px;font-weight:700;margin-bottom:18px;color:var(--text)}
-.form-row{margin-bottom:13px}
-.form-label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;display:block}
-.form-input{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color 0.15s}
-.form-input:focus{border-color:var(--accent);background:#fff}
-.form-select{width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;appearance:none;transition:border-color 0.15s}
-.form-select:focus{border-color:var(--accent);background:#fff}
-.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.modal-actions{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
-.form-hint{font-size:10px;color:var(--text3);margin-top:3px}
-
-/* ── NOTIF ───────────────────────────────────────── */
-.notif{position:fixed;bottom:24px;right:24px;z-index:200;background:rgba(28,28,30,0.92);backdrop-filter:blur(12px);border-radius:var(--radius);padding:12px 18px;font-size:13px;color:#fff;transform:translateY(70px);opacity:0;transition:all 0.3s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,0.2)}
-.notif.show{transform:translateY(0);opacity:1}
-
-/* ── SCROLLBAR ───────────────────────────────────── */
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:5px}
-
-/* ── TEAM METRICS ────────────────────────────────── */
-.team-metric-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
-.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
-
-/* ── DETAIL PANEL ────────────────────────────────── */
-.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:90;opacity:0;pointer-events:none;transition:opacity 0.2s;backdrop-filter:blur(3px)}
-.detail-overlay.show{opacity:1;pointer-events:all}
-.detail-panel{position:fixed;right:0;top:0;height:100vh;width:520px;background:var(--bg2);box-shadow:-8px 0 32px rgba(0,0,0,0.12);z-index:91;transform:translateX(100%);transition:transform 0.25s ease;overflow-y:auto;padding:24px}
-.detail-panel.show{transform:translateX(0)}
-.detail-close{position:absolute;top:20px;right:20px;width:28px;height:28px;border-radius:50%;background:var(--bg4);border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2)}
-.section-divider{height:1px;background:var(--border);margin:16px 0}
-
-/* ── BASE DATOS TAGS ─────────────────────────────── */
-.db-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(88,86,214,0.08);border:1px solid rgba(88,86,214,0.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;color:var(--accent);margin:3px}
-.db-tag .count{background:var(--accent);color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-family:var(--mono)}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión IT — Portal Estratégico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --ink:       #0D0F12;
+  --ink2:      #3A3F4A;
+  --ink3:      #7A8194;
+  --surface:   #F7F8FA;
+  --surface2:  #ECEEF2;
+  --line:      rgba(0,0,0,.08);
+  --accent:    #1A56FF;
+  --accent-h:  #0038D4;
+  --accent-bg: #EEF2FF;
+  --success:   #0A9E6E;
+  --success-bg:#E6F7F2;
+  --warn:      #D97706;
+  --warn-bg:   #FEF3C7;
+  --danger:    #DC2626;
+  --danger-bg: #FEE2E2;
+  --purple:    #7C3AED;
+  --purple-bg: #F3EFFE;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --r:    10px;
+  --r-lg: 16px;
+  --sh:   0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.05);
+  --sh-lg:0 2px 8px rgba(0,0,0,.08), 0 12px 40px rgba(0,0,0,.1);
+}
+
+/* ── RESET ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body { font-family: var(--font); background: var(--surface); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+button { font-family: var(--font); cursor: pointer; border: none; }
+input, select, textarea { font-family: var(--font); }
+a { color: inherit; text-decoration: none; }
+
+/* ── AUTH SCREEN ─────────────────────────────────────────── */
+#auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+#auth-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(26,86,255,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 85% 20%, rgba(124,58,237,.12) 0%, transparent 60%);
+}
+.auth-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+.auth-card {
+  position: relative;
+  z-index: 10;
+  width: 420px;
+  background: rgba(255,255,255,.96);
+  border-radius: 20px;
+  padding: 48px 44px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5);
+}
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.auth-logo-mark {
+  width: 38px; height: 38px;
+  background: var(--ink);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.auth-logo-mark svg { width: 20px; height: 20px; }
+.auth-logo-text { font-size: 16px; font-weight: 600; letter-spacing: -.3px; }
+.auth-logo-sub { font-size: 11px; color: var(--ink3); letter-spacing: .5px; text-transform: uppercase; }
+.auth-title { font-size: 24px; font-weight: 600; letter-spacing: -.5px; margin-bottom: 6px; }
+.auth-sub { font-size: 13px; color: var(--ink3); margin-bottom: 28px; line-height: 1.5; }
+.auth-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface2);
+  padding: 4px;
+  border-radius: var(--r);
+  margin-bottom: 24px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 8px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--ink3);
+  transition: all .15s;
+}
+.auth-tab.active {
+  background: white;
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; font-weight: 500; color: var(--ink2); margin-bottom: 6px; letter-spacing: .2px; }
+.field input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--surface2);
+  border-radius: var(--r);
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color .15s, background .15s;
+  outline: none;
+}
+.field input:focus { border-color: var(--accent); background: white; }
+.field input::placeholder { color: var(--ink3); }
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: var(--ink);
+  color: white;
+  border-radius: var(--r);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background .15s, transform .1s;
+  margin-top: 4px;
+}
+.btn-primary:hover { background: #1a1f2e; }
+.btn-primary:active { transform: scale(.99); }
+.btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+.auth-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid rgba(220,38,38,.2);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+}
+.auth-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(10,158,110,.2);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+}
+.auth-lock { text-align: center; margin-top: 20px; font-size: 11px; color: var(--ink3); display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+/* ── APP SHELL ───────────────────────────────────────────── */
+#app { display: none; min-height: 100vh; }
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+.layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.sidebar {
+  background: var(--ink);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sidebar-logo-mark {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar-logo-mark svg { width: 16px; height: 16px; }
+.sidebar-brand { font-size: 13px; font-weight: 600; color: white; letter-spacing: -.2px; }
+.sidebar-brand-sub { font-size: 10px; color: rgba(255,255,255,.4); letter-spacing: .5px; text-transform: uppercase; }
+.sidebar-section { padding: 20px 12px 8px; }
+.sidebar-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.3); letter-spacing: 1px; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255,255,255,.55);
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 1px;
+}
+.nav-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.85); }
+.nav-item.active { background: rgba(26,86,255,.25); color: white; font-weight: 500; }
+.nav-item svg { width: 15px; height: 15px; opacity: .7; flex-shrink: 0; }
+.nav-item.active svg { opacity: 1; }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 12px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.user-pill:hover { background: rgba(255,255,255,.07); }
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: white;
+  flex-shrink: 0;
+}
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 12px; font-weight: 500; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: 10px; color: rgba(255,255,255,.4); text-transform: capitalize; }
+.logout-btn {
+  background: none;
+  color: rgba(255,255,255,.35);
+  padding: 4px;
+  border-radius: 4px;
+  transition: color .15s;
+  display: flex;
+}
+.logout-btn:hover { color: rgba(255,255,255,.7); }
+
+/* ── MAIN CONTENT ────────────────────────────────────────── */
+.main { overflow-y: auto; }
+.topbar {
+  background: white;
+  border-bottom: 1px solid var(--line);
+  padding: 0 28px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title { font-size: 16px; font-weight: 600; letter-spacing: -.3px; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.btn-sm {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--ink);
+  color: white;
+  transition: background .15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-sm:hover { background: #1a1f2e; }
+.btn-sm svg { width: 14px; height: 14px; }
+.btn-outline {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  border: 1.5px solid var(--line);
+  color: var(--ink2);
+  transition: all .15s;
+}
+.btn-outline:hover { border-color: var(--ink3); color: var(--ink); }
+.page { padding: 28px; display: none; }
+.page.active { display: block; }
+
+/* ── METRIC CARDS ────────────────────────────────────────── */
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.metric-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow .15s;
+}
+.metric-card:hover { box-shadow: var(--sh); }
+.metric-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.metric-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+}
+.metric-icon svg { width: 16px; height: 16px; }
+.metric-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.metric-badge.up { background: var(--success-bg); color: var(--success); }
+.metric-badge.down { background: var(--danger-bg); color: var(--danger); }
+.metric-value { font-size: 28px; font-weight: 600; letter-spacing: -1px; line-height: 1; margin-bottom: 4px; }
+.metric-label { font-size: 12px; color: var(--ink3); font-weight: 400; }
+
+/* ── CHARTS ROW ──────────────────────────────────────────── */
+.charts-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-bottom: 24px; }
+.card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.card-title { font-size: 14px; font-weight: 600; letter-spacing: -.2px; }
+.card-sub { font-size: 12px; color: var(--ink3); margin-top: 2px; }
+
+/* ── PIPELINE TABLE ──────────────────────────────────────── */
+.pipeline-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--surface2);
+  color: var(--ink3);
+  border: none;
+  cursor: pointer;
+  transition: all .15s;
+}
+.filter-btn.active { background: var(--ink); color: white; }
+.pipeline-table { width: 100%; border-collapse: collapse; }
+.pipeline-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 0 12px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.pipeline-table td {
+  padding: 14px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.pipeline-table tr:last-child td { border-bottom: none; }
+.pipeline-table tr:hover td { background: var(--surface); }
+.stage-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.stage-dot { width: 6px; height: 6px; border-radius: 50%; }
+.company-cell { font-weight: 500; }
+.company-cell span { display: block; font-size: 11px; color: var(--ink3); font-weight: 400; margin-top: 2px; }
+.value-cell { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.prob-bar { width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; margin-top: 4px; }
+.prob-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+
+/* ── USERS PAGE ──────────────────────────────────────────── */
+.users-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.user-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.user-card-header { display: flex; align-items: center; gap: 12px; }
+.user-card-avatar {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 600; color: white;
+}
+.user-card-name { font-size: 14px; font-weight: 600; }
+.user-card-email { font-size: 12px; color: var(--ink3); }
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.role-admin { background: var(--purple-bg); color: var(--purple); }
+.role-manager { background: var(--accent-bg); color: var(--accent); }
+.role-viewer { background: var(--surface2); color: var(--ink3); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.status-active { background: var(--success); }
+.status-inactive { background: var(--ink3); }
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  display: none;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  width: 480px;
+  max-width: 95vw;
+  box-shadow: var(--sh-lg);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-title { font-size: 17px; font-weight: 600; letter-spacing: -.3px; margin-bottom: 20px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid .full { grid-column: 1/-1; }
+.form-field { display: flex; flex-direction: column; gap: 5px; }
+.form-field label { font-size: 11px; font-weight: 600; color: var(--ink3); letter-spacing: .3px; text-transform: uppercase; }
+.form-field input,
+.form-field select,
+.form-field textarea {
+  padding: 9px 12px;
+  border: 1.5px solid var(--surface2);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .15s;
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus { border-color: var(--accent); background: white; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.btn-cancel {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--surface2);
+  color: var(--ink2);
+}
+.btn-save {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--ink);
+  color: white;
+  transition: background .15s;
+}
+.btn-save:hover { background: var(--accent); }
+.btn-danger {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all .25s ease;
+  box-shadow: 0 4px 24px rgba(0,0,0,.25);
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+
+/* ── LOADING ─────────────────────────────────────────────── */
+#loading-screen {
+  position: fixed; inset: 0;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  flex-direction: column; gap: 16px;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 2.5px solid rgba(255,255,255,.15);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading-screen span { font-size: 13px; color: rgba(255,255,255,.4); }
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--ink3);
+}
+.empty-state p { font-size: 14px; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .users-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .metrics-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
 </head>
 <body>
-<div class="app">
 
-<!-- ═══ SIDEBAR ═══════════════════════════════════ -->
-<nav class="sidebar">
-  <div class="sidebar-logo">
-    <div class="brand">Gestión IT</div>
-    <div class="sub">marketing ops</div>
+<!-- LOADING -->
+<div id="loading-screen">
+  <div style="width:38px;height:38px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+    <svg viewBox="0 0 20 20" fill="none" style="width:20px;height:20px">
+      <path d="M3 10h4l3-7 4 14 3-7h3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </div>
-  <div class="nav-section">
-    <div class="nav-label">Principal</div>
-    <div class="nav-item active" onclick="nav('dashboard')"><span class="icon">⊞</span> Dashboard</div>
-    <div class="nav-item" onclick="nav('leads')"><span class="icon">◎</span> Leads <span class="badge" id="badge-leads">8</span></div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Producción</div>
-    <div class="nav-item" onclick="nav('contenido')"><span class="icon">◫</span> Contenido</div>
-    <div class="nav-item" onclick="nav('calendario')"><span class="icon">📅</span> Calendario</div>
-    <div class="nav-item" onclick="nav('tareas')"><span class="icon">◱</span> Tareas <span class="badge red" id="badge-tareas">3</span></div>
-    <div class="nav-item" onclick="nav('email')"><span class="icon">◧</span> Email marketing</div>
-    <div class="nav-item" onclick="nav('seo')"><span class="icon">◐</span> SEO / Blog</div>
-    <div class="nav-item" onclick="nav('eventos')"><span class="icon">◑</span> Eventos</div>
-  </div>
-  <div class="nav-section">
-    <div class="nav-label">Estrategia</div>
-    <div class="nav-item" onclick="nav('campanas')"><span class="icon">◉</span> Campañas</div>
-  </div>
-  <div class="team-section">
-    <div class="team-label">Equipo</div>
-    <div class="team-member" id="tm-Ana" onclick="filterByTeam('Ana')">
-      <div class="avatar av-ana">A</div>
-      <div class="member-info"><div class="name">Ana</div><div class="role">Copy & estrategia</div></div>
-    </div>
-    <div class="team-member" id="tm-Jassiel" onclick="filterByTeam('Jassiel')">
-      <div class="avatar av-jas">J</div>
-      <div class="member-info"><div class="name">Jassiel</div><div class="role">Publicación & gestión</div></div>
-    </div>
-    <div class="team-member" id="tm-Maria" onclick="filterByTeam('Maria')">
-      <div class="avatar av-mar">M</div>
-      <div class="member-info"><div class="name">Maria</div><div class="role">Diseño</div></div>
-    </div>
-    <div id="team-filter-badge" style="display:none;margin:6px 8px 0;font-size:10px;color:var(--accent);cursor:pointer;font-weight:500" onclick="clearTeamFilter()">✕ Limpiar filtro</div>
-  </div>
-</nav>
-
-<!-- ═══ MAIN ════════════════════════════════════════ -->
-<main class="main">
-
-<!-- ── DASHBOARD ──────────────────────────────────── -->
-<div class="page active" id="page-dashboard">
-  <div class="topbar">
-    <div><div class="topbar-title">Dashboard</div><div class="topbar-sub">Vista ejecutiva</div></div>
-    <div class="topbar-actions">
-      <button class="btn btn-ghost" onclick="showModal('lead')">+ Nuevo lead</button>
-      <button class="btn btn-primary" onclick="showModal('tarea')">+ Nueva tarea</button>
-    </div>
-  </div>
-  <div class="content">
-    <!-- KPIs row 1 -->
-    <div class="kpi-grid" id="kpi-grid"></div>
-    <!-- Cumplimiento tareas + campañas activas -->
-    <div class="panels-3" id="dash-row2"></div>
-    <!-- leads + canales -->
-    <div class="panels-grid">
-      <div class="panel"><div class="panel-header"><div class="panel-title">Leads recientes</div><div class="panel-action" onclick="nav('leads')">Ver todos →</div></div><div class="panel-body" id="dash-leads"></div></div>
-      <div class="panel"><div class="panel-header"><div class="panel-title">Leads por canal</div></div><div class="panel-body" id="dash-canales"></div></div>
-    </div>
-    <!-- métricas equipo -->
-    <div class="team-grid" id="dash-equipo"></div>
-    <!-- alcance + tareas -->
-    <div class="panels-grid">
-      <div class="panel"><div class="panel-header"><div class="panel-title">Métricas de alcance</div></div><div class="panel-body" id="dash-alcance"></div></div>
-      <div class="panel"><div class="panel-header"><div class="panel-title" style="color:var(--amber)">⚠ Pendientes críticos</div></div><div class="panel-body" id="dash-pendientes"></div></div>
-    </div>
-  </div>
+  <div class="spinner"></div>
+  <span>Verificando sesión...</span>
 </div>
 
-<!-- ── LEADS ──────────────────────────────────────── -->
-<div class="page" id="page-leads">
-  <div class="topbar">
-    <div><div class="topbar-title">Leads</div><div class="topbar-sub">Registro y seguimiento</div></div>
-    <div class="topbar-actions"><button class="btn btn-primary" onclick="showModal('lead')">+ Nuevo lead</button></div>
-  </div>
-  <div class="content">
-    <div class="filter-bar">
-      <button class="filter-pill active" onclick="filterLeads('todos',this)">Todos</button>
-      <button class="filter-pill" onclick="filterLeads('nuevo',this)">Nuevo</button>
-      <button class="filter-pill" onclick="filterLeads('calificado_mkt',this)">Calificado</button>
-      <button class="filter-pill" onclick="filterLeads('enviado_ventas',this)">Enviado ventas</button>
-      <button class="filter-pill" onclick="filterLeads('en_seguimiento',this)">Seguimiento</button>
-      <button class="filter-pill" onclick="filterLeads('sin_respuesta',this)">Sin respuesta</button>
-      <div class="resp-filter">
-        <button class="resp-btn" id="rb-Ana" onclick="toggleLeadsResp('Ana')"><span style="width:14px;height:14px;border-radius:50%;background:rgba(88,86,214,0.2);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--accent)">A</span> Ana</button>
-        <button class="resp-btn" id="rb-Jassiel" onclick="toggleLeadsResp('Jassiel')"><span style="width:14px;height:14px;border-radius:50%;background:rgba(90,200,250,0.2);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0a84ff">J</span> Jassiel</button>
-        <button class="resp-btn" id="rb-Maria" onclick="toggleLeadsResp('Maria')"><span style="width:14px;height:14px;border-radius:50%;background:rgba(255,45,85,0.15);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--pink)">M</span> Maria</button>
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:none">
+  <div class="auth-grid"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">
+        <svg viewBox="0 0 20 20" fill="none">
+          <path d="M3 10h4l3-7 4 14 3-7h3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="auth-logo-text">Gestión IT</div>
+        <div class="auth-logo-sub">Portal Estratégico</div>
       </div>
     </div>
-    <div class="panel" style="overflow:auto">
-      <table class="leads-table"><thead><tr><th>Empresa</th><th>Canal</th><th>Campaña</th><th>Tipo</th><th>Estado</th><th>Responsable</th><th>Fecha</th><th>Cambiar estado</th></tr></thead>
-      <tbody id="leads-tbody"></tbody></table>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="auth-tab" onclick="switchTab('reset')" id="tab-reset">Recuperar acceso</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div id="form-login">
+      <div class="auth-error" id="login-error"></div>
+      <div class="auth-success" id="login-success"></div>
+      <div class="field">
+        <label>Correo institucional</label>
+        <input type="email" id="login-email" placeholder="usuario@gestionit.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-primary" onclick="doLogin()" id="login-btn">Entrar al portal</button>
+    </div>
+
+    <!-- RESET FORM -->
+    <div id="form-reset" style="display:none">
+      <div class="auth-error" id="reset-error"></div>
+      <div class="auth-success" id="reset-success"></div>
+      <p style="font-size:13px;color:var(--ink3);margin-bottom:20px;line-height:1.6">
+        Ingresa tu correo institucional y te enviaremos un enlace para restablecer tu contraseña.
+      </p>
+      <div class="field">
+        <label>Correo institucional</label>
+        <input type="email" id="reset-email" placeholder="usuario@gestionit.com">
+      </div>
+      <button class="btn-primary" onclick="doReset()" id="reset-btn">Enviar enlace de recuperación</button>
+    </div>
+
+    <div class="auth-lock">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <rect x="3" y="7" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M5.5 7V5a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Acceso restringido · Información confidencial
     </div>
   </div>
 </div>
 
-<!-- ── CONTENIDO ──────────────────────────────────── -->
-<div class="page" id="page-contenido">
-  <div class="topbar">
-    <div><div class="topbar-title">Contenido</div><div class="topbar-sub">Redes sociales · Producción</div></div>
-    <div class="topbar-actions"><button class="btn btn-primary" onclick="showModal('contenido')">+ Nuevo contenido</button></div>
-  </div>
-  <div class="content">
-    <div class="filter-bar">
-      <button class="filter-pill active" onclick="filterContenido('todos',this)">Todos</button>
-      <button class="filter-pill" onclick="filterContenido('idea',this)">Idea</button>
-      <button class="filter-pill" onclick="filterContenido('redaccion',this)">Redacción</button>
-      <button class="filter-pill" onclick="filterContenido('diseño',this)">Diseño</button>
-      <button class="filter-pill" onclick="filterContenido('revision',this)">Revisión</button>
-      <button class="filter-pill" onclick="filterContenido('programado',this)">Programado</button>
-      <button class="filter-pill" onclick="filterContenido('publicado',this)">Publicado</button>
-    </div>
-    <div class="content-grid" id="contenido-grid"></div>
-  </div>
-</div>
-
-<!-- ── CALENDARIO ─────────────────────────────────── -->
-<div class="page" id="page-calendario">
-  <div class="topbar">
-    <div><div class="topbar-title">Calendario de publicaciones</div><div class="topbar-sub">Planificación visual del equipo</div></div>
-    <div class="topbar-actions">
-      <button class="btn btn-ghost" onclick="changeCalView('month')" id="cv-month">Mes</button>
-      <button class="btn btn-ghost" onclick="changeCalView('week')" id="cv-week">Semana</button>
-      <button class="btn btn-primary" onclick="showModal('contenido')">+ Nuevo</button>
-    </div>
-  </div>
-  <div class="content">
-    <div class="panel">
-      <div class="panel-body">
-        <div class="cal-nav">
-          <button class="cal-nav-btn" onclick="calPrev()">‹</button>
-          <div class="cal-nav-title" id="cal-title"></div>
-          <button class="cal-nav-btn" onclick="calNext()">›</button>
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-mark">
+          <svg viewBox="0 0 20 20" fill="none">
+            <path d="M3 10h4l3-7 4 14 3-7h3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-        <div class="cal-header" id="cal-header"></div>
-        <div class="cal-grid" id="cal-grid"></div>
+        <div>
+          <div class="sidebar-brand">Gestión IT</div>
+          <div class="sidebar-brand-sub">Portal</div>
+        </div>
       </div>
-    </div>
-    <!-- Leyenda equipo -->
-    <div style="display:flex;gap:16px;margin-top:12px;padding:12px 16px;background:var(--bg2);border-radius:var(--radius);border:1px solid var(--border)">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-right:4px">Responsable:</div>
-      <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:50%;background:rgba(88,86,214,0.6)"></div><span style="font-size:12px">Ana — copy</span></div>
-      <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,45,85,0.6)"></div><span style="font-size:12px">Maria — diseño</span></div>
-      <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:50%;background:rgba(0,122,255,0.6)"></div><span style="font-size:12px">Jassiel — pub</span></div>
-      <div style="margin-left:auto;display:flex;gap:10px">
-        <div style="display:flex;align-items:center;gap:4px"><span class="canal-badge cb-ig">IG</span><span style="font-size:11px">Instagram</span></div>
-        <div style="display:flex;align-items:center;gap:4px"><span class="canal-badge cb-li">LI</span><span style="font-size:11px">LinkedIn</span></div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Principal</div>
+        <div class="nav-item active" onclick="showPage('dashboard', this)">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>
+          Dashboard
+        </div>
+        <div class="nav-item" onclick="showPage('pipeline', this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M1 3h14M1 8h10M1 13h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Pipeline CRM
+        </div>
+        <div class="nav-item" onclick="showPage('estrategia', this)">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M2 14L6 8l3 4 2-6 3 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Estrategia B2B
+        </div>
       </div>
-    </div>
-  </div>
-</div>
 
-<!-- ── TAREAS ──────────────────────────────────────── -->
-<div class="page" id="page-tareas">
-  <div class="topbar">
-    <div><div class="topbar-title">Tareas</div><div class="topbar-sub">Tablero del equipo</div></div>
-    <div class="topbar-actions">
-      <div class="resp-filter">
-        <button class="resp-btn" id="tb-Ana" onclick="toggleTareasResp('Ana')"><span style="width:14px;height:14px;border-radius:50%;background:rgba(88,86,214,0.2);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--accent)">A</span> Ana</button>
-        <button class="resp-btn" id="tb-Jassiel" onclick="toggleTareasResp('Jassiel')"><span style="width:14px;height:14px;border-radius:50%;background:rgba(90,200,250,0.2);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#0a84ff">J</span> Jassiel</button>
-        <button class="resp-btn" id="tb-Maria" onclick="toggleTareasResp('Maria')"><span style="width:14px;height:14px;border-radius:50%;background:rgba(255,45,85,0.15);display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--pink)">M</span> Maria</button>
+      <div class="sidebar-section" id="admin-section">
+        <div class="sidebar-label">Administración</div>
+        <div class="nav-item" onclick="showPage('users', this)">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Usuarios
+        </div>
       </div>
-      <button class="btn btn-primary" onclick="showModal('tarea')">+ Nueva tarea</button>
-    </div>
+
+      <div class="sidebar-footer">
+        <div class="user-pill" onclick="showPage('perfil', null)">
+          <div class="avatar" id="sidebar-avatar">--</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-name">Cargando...</div>
+            <div class="user-role" id="sidebar-role">—</div>
+          </div>
+          <button class="logout-btn" onclick="doLogout(event)" title="Cerrar sesión">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 2H2v12h4M10 5l3 3-3 3M13 8H6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="page-title">Dashboard ejecutivo</div>
+        <div class="topbar-right" id="topbar-actions">
+          <button class="btn-outline" onclick="loadDashboard()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="display:inline;margin-right:4px"><path d="M2 8a6 6 0 1110.93-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 2v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Actualizar
+          </button>
+          <button class="btn-sm" id="topbar-cta" onclick="openLeadModal()">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Nuevo lead
+          </button>
+        </div>
+      </div>
+
+      <!-- DASHBOARD PAGE -->
+      <div class="page active" id="page-dashboard">
+        <div class="metrics-grid" id="metrics-grid">
+          <!-- filled by JS -->
+        </div>
+        <div class="charts-row">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Pipeline mensual</div>
+                <div class="card-sub">Leads, MQLs y SQLs generados</div>
+              </div>
+            </div>
+            <div style="position:relative;height:220px"><canvas id="chart-pipeline"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Mix de soluciones</div>
+                <div class="card-sub">Por oportunidades activas</div>
+              </div>
+            </div>
+            <div style="position:relative;height:220px"><canvas id="chart-solutions"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Conversión por etapa</div><div class="card-sub">Funnel acumulado del mes</div></div>
+          </div>
+          <div style="position:relative;height:180px"><canvas id="chart-funnel"></canvas></div>
+        </div>
+      </div>
+
+      <!-- PIPELINE PAGE -->
+      <div class="page" id="page-pipeline">
+        <div class="pipeline-filters" id="pipeline-filters">
+          <button class="filter-btn active" onclick="filterPipeline('all', this)">Todos</button>
+          <button class="filter-btn" onclick="filterPipeline('lead', this)">Lead</button>
+          <button class="filter-btn" onclick="filterPipeline('contactado', this)">Contactado</button>
+          <button class="filter-btn" onclick="filterPipeline('discovery', this)">Discovery</button>
+          <button class="filter-btn" onclick="filterPipeline('diagnostico', this)">Diagnóstico</button>
+          <button class="filter-btn" onclick="filterPipeline('propuesta', this)">Propuesta</button>
+          <button class="filter-btn" onclick="filterPipeline('negociacion', this)">Negociación</button>
+        </div>
+        <div class="card">
+          <table class="pipeline-table" id="pipeline-table">
+            <thead>
+              <tr>
+                <th>Empresa / Contacto</th>
+                <th>Cargo</th>
+                <th>Solución</th>
+                <th>Etapa</th>
+                <th>Valor</th>
+                <th>Prob.</th>
+                <th>Fuente</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="pipeline-tbody">
+              <tr><td colspan="8" class="empty-state"><p>Cargando pipeline...</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ESTRATEGIA PAGE -->
+      <div class="page" id="page-estrategia">
+        <div style="max-width:780px">
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-title" style="margin-bottom:16px">Plan de acción — 90 días</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+              <div style="background:var(--accent-bg);border-radius:10px;padding:16px">
+                <div style="font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Fase 1 · 0–30d</div>
+                <ul style="font-size:13px;color:var(--ink2);line-height:2;list-style:none">
+                  <li>✓ Setup Zoho CRM</li><li>✓ Tracking & UTMs</li><li>✓ Definir ICP</li><li>✓ Landing pages</li><li>✓ ABM Nivel 1 (20 cuentas)</li>
+                </ul>
+              </div>
+              <div style="background:var(--warn-bg);border-radius:10px;padding:16px">
+                <div style="font-size:11px;font-weight:600;color:var(--warn);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Fase 2 · 30–60d</div>
+                <ul style="font-size:13px;color:var(--ink2);line-height:2;list-style:none">
+                  <li>→ LinkedIn Ads live</li><li>→ Email sequences</li><li>→ Contenido semanal</li><li>→ Google Search Ads</li><li>→ ABM outreach</li>
+                </ul>
+              </div>
+              <div style="background:var(--success-bg);border-radius:10px;padding:16px">
+                <div style="font-size:11px;font-weight:600;color:var(--success);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Fase 3 · 60–90d</div>
+                <ul style="font-size:13px;color:var(--ink2);line-height:2;list-style:none">
+                  <li>◎ Optimizar ROI</li><li>◎ Escalar inversión</li><li>◎ Automatizaciones</li><li>◎ Social proof</li><li>◎ Script discovery</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">KPIs objetivo</div>
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead><tr style="border-bottom:1px solid var(--line)">
+                <th style="text-align:left;padding:0 0 10px;font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px">Métrica</th>
+                <th style="text-align:right;padding:0 0 10px;font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px">Objetivo</th>
+                <th style="text-align:right;padding:0 0 10px;font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px">Notas</th>
+              </tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 0">CPL (Costo por lead)</td><td style="text-align:right;font-family:var(--mono);font-weight:500">$35–60</td><td style="text-align:right;color:var(--ink3)">LinkedIn + Google</td></tr>
+                <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 0">Costo por SQL</td><td style="text-align:right;font-family:var(--mono);font-weight:500">$300–500</td><td style="text-align:right;color:var(--ink3)">Post-calificación</td></tr>
+                <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 0">Ticket promedio</td><td style="text-align:right;font-family:var(--mono);font-weight:500">$8K–25K</td><td style="text-align:right;color:var(--ink3)">Anual</td></tr>
+                <tr style="border-bottom:1px solid var(--line)"><td style="padding:10px 0">Ciclo de venta</td><td style="text-align:right;font-family:var(--mono);font-weight:500">45–60 días</td><td style="text-align:right;color:var(--ink3)">Objetivo reducción</td></tr>
+                <tr><td style="padding:10px 0">Conv. lead → cierre</td><td style="text-align:right;font-family:var(--mono);font-weight:500">6–8%</td><td style="text-align:right;color:var(--ink3)">Total funnel</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS PAGE -->
+      <div class="page" id="page-users">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div style="font-size:15px;font-weight:600">Gestión de usuarios</div>
+            <div style="font-size:13px;color:var(--ink3);margin-top:2px">Control de acceso al portal</div>
+          </div>
+          <button class="btn-sm" onclick="openUserModal()">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M8 2v12M2 8h12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Invitar usuario
+          </button>
+        </div>
+        <div class="users-grid" id="users-grid">
+          <div class="empty-state"><p>Cargando usuarios...</p></div>
+        </div>
+      </div>
+
+    </main>
   </div>
-  <div class="content"><div class="kanban" id="kanban-board"></div></div>
 </div>
 
-<!-- ── EMAIL ──────────────────────────────────────── -->
-<div class="page" id="page-email">
-  <div class="topbar">
-    <div><div class="topbar-title">Email marketing</div></div>
-    <div class="topbar-actions">
-      <button class="btn btn-ghost" onclick="showModal('basedatos')">+ Base de datos</button>
-      <button class="btn btn-primary" onclick="showModal('email')">+ Nueva campaña</button>
-    </div>
-  </div>
-  <div class="content">
-    <div class="kpi-grid" id="email-kpis"></div>
-    <!-- Bases de datos -->
-    <div class="panel" style="margin-bottom:16px">
-      <div class="panel-header"><div class="panel-title">Bases de datos</div><div class="panel-action" onclick="showModal('basedatos')">+ Agregar</div></div>
-      <div class="panel-body"><div id="bases-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:36px"></div></div>
-    </div>
-    <!-- Campañas -->
-    <div class="panel"><div class="panel-header"><div class="panel-title">Campañas enviadas</div></div><div id="email-list" style="padding:0 4px"></div></div>
-  </div>
-</div>
-
-<!-- ── SEO ────────────────────────────────────────── -->
-<div class="page" id="page-seo">
-  <div class="topbar">
-    <div><div class="topbar-title">SEO / Blog</div></div>
-    <div class="topbar-actions"><button class="btn btn-primary" onclick="showModal('articulo')">+ Nuevo artículo</button></div>
-  </div>
-  <div class="content">
-    <div class="kpi-grid" id="seo-kpis"></div>
-    <div class="panel" style="overflow:auto">
-      <table class="leads-table"><thead><tr><th>Artículo</th><th>Palabra clave</th><th>Fecha</th><th>Tráfico</th><th>Leads</th><th>Acciones</th></tr></thead>
-      <tbody id="seo-tbody"></tbody></table>
-    </div>
-  </div>
-</div>
-
-<!-- ── EVENTOS ────────────────────────────────────── -->
-<div class="page" id="page-eventos">
-  <div class="topbar">
-    <div><div class="topbar-title">Eventos</div></div>
-    <div class="topbar-actions"><button class="btn btn-primary" onclick="showModal('evento')">+ Nuevo evento</button></div>
-  </div>
-  <div class="content"><div id="eventos-list" style="display:flex;flex-direction:column;gap:12px"></div></div>
-</div>
-
-<!-- ── CAMPAÑAS ───────────────────────────────────── -->
-<div class="page" id="page-campanas">
-  <div class="topbar">
-    <div><div class="topbar-title">Campañas</div></div>
-    <div class="topbar-actions"><button class="btn btn-primary" onclick="showModal('campana')">+ Nueva campaña</button></div>
-  </div>
-  <div class="content"><div id="campanas-list" style="display:flex;flex-direction:column;gap:12px"></div></div>
-</div>
-
-</main>
-</div><!-- end .app -->
-
-<!-- ═══ MODAL ════════════════════════════════════════ -->
-<div class="modal-overlay" id="modal-overlay" onclick="maybeCloseModal(event)">
+<!-- MODAL: Nuevo lead -->
+<div class="modal-backdrop" id="modal-lead">
   <div class="modal">
-    <div class="modal-title" id="modal-title"></div>
-    <div id="modal-form"></div>
+    <div class="modal-title">Nuevo lead</div>
+    <div class="form-grid">
+      <div class="form-field"><label>Empresa *</label><input id="f-company" placeholder="Nombre de la empresa"></div>
+      <div class="form-field"><label>Contacto *</label><input id="f-contact" placeholder="Nombre completo"></div>
+      <div class="form-field"><label>Email</label><input id="f-email" type="email" placeholder="contacto@empresa.com"></div>
+      <div class="form-field"><label>Teléfono</label><input id="f-phone" placeholder="+1 (809) 555-0100"></div>
+      <div class="form-field"><label>Cargo</label>
+        <select id="f-cargo"><option value="">Seleccionar...</option><option>CFO</option><option>CISO</option><option>IT Manager</option><option>CEO</option><option>CTO</option><option>Otro</option></select>
+      </div>
+      <div class="form-field"><label>Solución</label>
+        <select id="f-solution"><option value="">Seleccionar...</option><option>CloudSpend</option><option>Sophos</option><option>ManageEngine</option><option>Multiple</option></select>
+      </div>
+      <div class="form-field"><label>Valor estimado ($)</label><input id="f-value" type="number" placeholder="12000"></div>
+      <div class="form-field"><label>Fuente</label>
+        <select id="f-source"><option value="">Seleccionar...</option><option>LinkedIn</option><option>Google Ads</option><option>Email</option><option>Referido</option><option>Directo</option><option>Evento</option><option>Otro</option></select>
+      </div>
+      <div class="form-field full"><label>Industria</label><input id="f-industry" placeholder="Manufactura, Retail, Salud..."></div>
+      <div class="form-field full"><label>Notas</label><textarea id="f-notes" rows="3" placeholder="Pain points, contexto, próxima acción..."></textarea></div>
+    </div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" id="modal-save-btn" onclick="saveModal()">Guardar</button>
+      <button class="btn-cancel" onclick="closeModal('modal-lead')">Cancelar</button>
+      <button class="btn-save" onclick="saveLead()">Guardar lead</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ DETAIL PANEL ═════════════════════════════════ -->
-<div class="detail-overlay" id="detail-overlay" onclick="closeDetail()"></div>
-<div class="detail-panel" id="detail-panel">
-  <button class="detail-close" onclick="closeDetail()">✕</button>
-  <div id="detail-content"></div>
+<!-- MODAL: Invitar usuario -->
+<div class="modal-backdrop" id="modal-user">
+  <div class="modal">
+    <div class="modal-title">Invitar usuario</div>
+    <div style="background:var(--accent-bg);border-radius:var(--r);padding:12px 14px;margin-bottom:18px;font-size:13px;color:var(--accent);line-height:1.5">
+      El usuario recibirá un correo de Supabase para establecer su contraseña. El acceso es seguro y autenticado.
+    </div>
+    <div class="form-grid">
+      <div class="form-field full"><label>Correo electrónico *</label><input id="u-email" type="email" placeholder="usuario@gestionit.com"></div>
+      <div class="form-field"><label>Nombre completo</label><input id="u-name" placeholder="Juan Pérez"></div>
+      <div class="form-field"><label>Rol</label>
+        <select id="u-role"><option value="viewer">Viewer — Solo lectura</option><option value="manager">Manager — Leer + editar</option><option value="admin">Admin — Acceso total</option></select>
+      </div>
+      <div class="form-field full"><label>Departamento</label><input id="u-dept" placeholder="Marketing, Ventas, Dirección..."></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn-save" onclick="inviteUser()">Enviar invitación</button>
+    </div>
+  </div>
 </div>
 
-<div class="notif" id="notif"></div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-// ─── SUPABASE CONFIG ─────────────────────────────────────────
-const SUPABASE_URL = "https://tdkundlrwyhpvrtilgta.supabase.co";
-const SUPABASE_KEY = "sb_publishable_lGzNozLGIfbyo_mQ5OAiow_sbr7VnS4";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// ============================================================
+// CONFIGURACIÓN — Reemplazar con tus credenciales de Supabase
+// ============================================================
+const SUPABASE_URL = 'https://TU_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'TU_ANON_KEY_AQUI';
+// ============================================================
 
-// ─── CONSTANTS ───────────────────────────────────────────────
-const TEAM=['Ana','Jassiel','Maria'];
-const CANALES=['SEO','Email','Instagram','LinkedIn','Evento'];
-const ESTADO_L={nuevo:'Nuevo',calificado_mkt:'Calificado mkt',enviado_ventas:'Enviado ventas',en_seguimiento:'En seguimiento',convertido:'Convertido',perdido:'Perdido',sin_respuesta:'Sin respuesta'};
-const FLOW_C={idea:'#8E8E93',redaccion:'#5856D6',diseño:'#FF2D55',revision:'#FF9500',aprobado:'#007AFF',programado:'#5AC8FA',publicado:'#34C759'};
-const CANAL_C={SEO:'#34C759',Email:'#007AFF',Instagram:'#FF2D55',LinkedIn:'#5AC8FA',Evento:'#FF9500'};
-const CANAL_CLS={SEO:'cb-seo',Email:'cb-email',Instagram:'cb-ig',LinkedIn:'cb-li',Evento:'cb-evento'};
-const AV_CLS={Ana:'av-ana',Jassiel:'av-jas',Maria:'av-mar'};
-const TAG_CLS={nuevo:'tag-nuevo',calificado_mkt:'tag-calificadomkt',enviado_ventas:'tag-enviadoventas',en_seguimiento:'tag-enseguimiento',convertido:'tag-convertido',perdido:'tag-perdido',sin_respuesta:'tag-sinrespuesta'};
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ─── DATA ────────────────────────────────────────────────────
-let leads=[
-  {id:1,empresa:'Grupo Torres SA',canal:'SEO',campana:'Blog IT Q2',tipo:'calificado',estado:'enviado_ventas',responsable:'Ana',fecha:'2025-04-18'},
-  {id:2,empresa:'MedTech RD',canal:'LinkedIn',campana:'Awareness LinkedIn',tipo:'interesado',estado:'calificado_mkt',responsable:'Jassiel',fecha:'2025-04-19'},
-  {id:3,empresa:'Contabilidad Express',canal:'Email',campana:'Newsletter Abr',tipo:'frío',estado:'nuevo',responsable:'Ana',fecha:'2025-04-20'},
-  {id:4,empresa:'Constructora Mirador',canal:'Evento',campana:'Desayuno IT',tipo:'calificado',estado:'en_seguimiento',responsable:'Jassiel',fecha:'2025-04-17'},
-  {id:5,empresa:'FarmaTech',canal:'Instagram',campana:'Reel casos éxito',tipo:'interesado',estado:'nuevo',responsable:'Maria',fecha:'2025-04-21'},
-  {id:6,empresa:'Inversiones Omega',canal:'SEO',campana:'Blog IT Q2',tipo:'calificado',estado:'enviado_ventas',responsable:'Ana',fecha:'2025-04-15'},
-  {id:7,empresa:'Retail Plus',canal:'Email',campana:'Newsletter Abr',tipo:'frío',estado:'sin_respuesta',responsable:'Jassiel',fecha:'2025-04-10'},
-  {id:8,empresa:'Clínica Salud RD',canal:'LinkedIn',campana:'Awareness LinkedIn',tipo:'calificado',estado:'enviado_ventas',responsable:'Ana',fecha:'2025-04-14'},
-];
-let tareas=[
-  {id:1,titulo:'Redactar artículo ciberseguridad PYMEs',area:'SEO',responsable:'Ana',prioridad:'alta',estado:'pendiente',fecha:'2025-04-22'},
-  {id:2,titulo:'Diseñar carrusel comparativa cloud',area:'contenido',responsable:'Maria',prioridad:'alta',estado:'en_proceso',fecha:'2025-04-23'},
-  {id:3,titulo:'Programar posts semana 18',area:'contenido',responsable:'Jassiel',prioridad:'media',estado:'en_proceso',fecha:'2025-04-25'},
-  {id:4,titulo:'Copy email newsletter mayo',area:'email',responsable:'Ana',prioridad:'alta',estado:'pendiente',fecha:'2025-04-22'},
-  {id:5,titulo:'Diseño banner evento webinar',area:'evento',responsable:'Maria',prioridad:'media',estado:'revision',fecha:'2025-04-26'},
-  {id:6,titulo:'Actualizar perfil LinkedIn empresa',area:'contenido',responsable:'Jassiel',prioridad:'baja',estado:'pendiente',fecha:'2025-04-28'},
-  {id:7,titulo:'Reporte mensual de leads',area:'estrategia',responsable:'Ana',prioridad:'media',estado:'revision',fecha:'2025-04-24'},
-  {id:8,titulo:'3 historias IG campaña webinar',area:'contenido',responsable:'Maria',prioridad:'media',estado:'completada',fecha:'2025-04-20'},
-];
-let contenidos=[
-  {id:1,canal:'LinkedIn',tipo:'carrusel',tema:'Cloud vs On-Premise',objetivo:'educación',estado:'diseño',alcance:0,interacciones:0,clics:0,leads:0,fecha:'2025-04-28',copy:'',notas:''},
-  {id:2,canal:'Instagram',tipo:'reel',tema:'Casos de éxito',objetivo:'branding',estado:'publicado',alcance:2400,interacciones:312,clics:89,leads:2,fecha:'2025-04-15',copy:'¿Sabías que migrar a la nube puede reducir tus costos hasta un 40%?',notas:''},
-  {id:3,canal:'LinkedIn',tipo:'arte',tema:'Ciberseguridad para PYMEs',objetivo:'leads',estado:'redaccion',alcance:0,interacciones:0,clics:0,leads:0,fecha:'2025-05-02',copy:'',notas:'Vincular con el artículo del blog'},
-  {id:4,canal:'Instagram',tipo:'carrusel',tema:'5 señales de IT obsoleta',objetivo:'educación',estado:'programado',alcance:0,interacciones:0,clics:0,leads:0,fecha:'2025-04-29',copy:'',notas:''},
-  {id:5,canal:'LinkedIn',tipo:'arte',tema:'Webinar: Gestión IT 2025',objetivo:'leads',estado:'aprobado',alcance:0,interacciones:0,clics:0,leads:0,fecha:'2025-05-05',copy:'',notas:''},
-  {id:6,canal:'Instagram',tipo:'arte',tema:'Tip semana: backups',objetivo:'branding',estado:'publicado',alcance:1800,interacciones:198,clics:44,leads:1,fecha:'2025-04-10',copy:'¿Tienes configurados tus backups automáticos? Aquí van 3 pasos esenciales.',notas:''},
-];
-let emails=[
-  {id:1,nombre:'Newsletter Abril',fecha:'2025-04-10',bases:['Base completa'],obj:'Nurturing',asunto:'¿Tu IT está lista para 2025?',htmlCode:'',enviados:1420,open:36,click:9.2,leads:4,ventas:2},
-  {id:2,nombre:'Reactivación leads fríos',fecha:'2025-04-03',bases:['Leads sin respuesta'],obj:'Reactivación',asunto:'Una pregunta rápida para ti',htmlCode:'',enviados:380,open:28,click:6.1,leads:2,ventas:1},
-  {id:3,nombre:'Invitación webinar',fecha:'2025-04-17',bases:['Calificados'],obj:'Generación leads',asunto:'Reserva tu lugar — webinar 5 mayo',htmlCode:'',enviados:640,open:42,click:14.8,leads:5,ventas:3},
-];
-let bases=[
-  {id:1,nombre:'Base completa',leads:1420},
-  {id:2,nombre:'Leads sin respuesta',leads:380},
-  {id:3,nombre:'Calificados',leads:640},
-  {id:4,nombre:'Prospectos fríos',leads:280},
-];
-let articulos=[
-  {id:1,titulo:'Cómo migrar a la nube sin interrumpir tu operación',kw:'migración a la nube empresas',fecha:'2025-03-15',trafico:820,leads:3,htmlCode:'',sesiones:820,rebote:42,pos:4.2},
-  {id:2,titulo:'5 errores de seguridad que cometen las PYMEs',kw:'seguridad informática pyme',fecha:'2025-03-28',trafico:1240,leads:5,htmlCode:'',sesiones:1240,rebote:38,pos:2.8},
-  {id:3,titulo:'Comparativa: cloud pública vs privada vs híbrida',kw:'comparativa cloud empresas',fecha:'2025-04-08',trafico:640,leads:2,htmlCode:'',sesiones:640,rebote:51,pos:7.1},
-];
-let eventos=[
-  {id:1,nombre:'Desayuno IT Leaders',tipo:'presencial',fecha:'2025-04-17',obj:'Generación leads calificados',registrados:28,asistentes:22,ventas:5},
-  {id:2,nombre:'Webinar: Gestión IT 2025',tipo:'webinar',fecha:'2025-05-05',obj:'Posicionamiento + leads',registrados:94,asistentes:0,ventas:0},
-];
-let campanas=[
-  {id:1,nombre:'Blog IT Q2',obj:'Posicionamiento SEO + leads orgánicos',canal:'SEO',inicio:'2025-04-01',fin:'2025-06-30',responsable:'Ana',leads:8,ventas:4,resultado:'activa'},
-  {id:2,nombre:'Awareness LinkedIn',obj:'Reconocimiento B2B',canal:'LinkedIn',inicio:'2025-04-01',fin:'2025-05-31',responsable:'Jassiel',leads:5,ventas:3,resultado:'activa'},
-  {id:3,nombre:'Newsletter Abril',obj:'Nurturing base de contactos',canal:'Email',inicio:'2025-04-01',fin:'2025-04-30',responsable:'Ana',leads:6,ventas:3,resultado:'completada'},
-];
+// ── STATE ──────────────────────────────────────────────────
+let currentUser = null;
+let currentProfile = null;
+let allLeads = [];
+let chartPipeline, chartSolutions, chartFunnel;
 
-// ─── STATE ───────────────────────────────────────────────────
-let currentPage='dashboard',teamFilter=null,leadsEstadoFilter='todos',leadsRespFilter=null,tareasRespFilter=null,contenidoFilter='todos',currentModal=null;
-let calDate=new Date(2025,3,1); // April 2025
+// ── INIT ───────────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  hide('loading-screen');
 
-// ─── HELPERS ─────────────────────────────────────────────────
-function av(name,size=18){const s=size+'px';const f=Math.round(size*0.44)+'px';return`<div class="mini-avatar ${AV_CLS[name]||'av-ana'}" style="width:${s};height:${s};font-size:${f}">${name[0]}</div>`;}
-function dotColor(e){return{nuevo:'#007AFF',calificado_mkt:'#5856D6',enviado_ventas:'#34C759',en_seguimiento:'#FF9500',convertido:'#34C759',perdido:'#FF3B30',sin_respuesta:'#8E8E93'}[e]||'#8E8E93';}
-function today(){return new Date().toISOString().slice(0,10);}
-function fmt(n){return n==null?0:Math.round(n);}
-
-// ─── NAVIGATION ──────────────────────────────────────────────
-function nav(page){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+page+"'"))n.classList.add('active');});
-  currentPage=page; renderPage(page);
-}
-function filterByTeam(name){
-  teamFilter=teamFilter===name?null:name;
-  ['Ana','Jassiel','Maria'].forEach(n=>{const el=document.getElementById('tm-'+n);if(el)el.classList.toggle('active-filter',teamFilter===n);});
-  document.getElementById('team-filter-badge').style.display=teamFilter?'block':'none';
-  renderPage(currentPage);
-  if(teamFilter)notify('Filtrando por '+teamFilter);
-}
-function clearTeamFilter(){filterByTeam(teamFilter);}
-function renderPage(p){const m={dashboard:renderDashboard,leads:renderLeads,tareas:renderTareas,contenido:renderContenido,calendario:renderCalendar,email:renderEmails,seo:renderSEO,eventos:renderEventos,campanas:renderCampanas};if(m[p])m[p]();}
-
-// ─── DASHBOARD ───────────────────────────────────────────────
-function renderDashboard(){
-  const total=leads.length,aVentas=leads.filter(l=>l.estado==='enviado_ventas'||l.estado==='convertido').length;
-  const sinSeg=leads.filter(l=>l.estado==='nuevo'||l.estado==='sin_respuesta').length;
-  const vencidas=tareas.filter(t=>t.estado!=='completada'&&t.fecha<today()).length;
-  document.getElementById('kpi-grid').innerHTML=`
-    <div class="kpi-card"><div class="kpi-label">Leads este mes</div><div class="kpi-value">${total}</div><div class="kpi-delta up">↑ 4 vs mes anterior</div></div>
-    <div class="kpi-card"><div class="kpi-label">Enviados a ventas</div><div class="kpi-value">${aVentas}</div><div class="kpi-delta up">${total?fmt(aVentas/total*100):0}% conversión</div></div>
-    <div class="kpi-card"><div class="kpi-label">Sin seguimiento</div><div class="kpi-value" style="color:var(--red)">${sinSeg}</div><div class="kpi-delta warn">⚠ Requieren acción</div></div>
-    <div class="kpi-card"><div class="kpi-label">Tareas vencidas</div><div class="kpi-value" style="color:var(--amber)">${vencidas}</div><div class="kpi-delta warn">Ver pendientes</div></div>`;
-
-  // Row 2: cumplimiento + campañas activas + alcance total
-  const totalT=tareas.length,completadas=tareas.filter(t=>t.estado==='completada').length,enProceso=tareas.filter(t=>t.estado==='en_proceso').length,pendientes=tareas.filter(t=>t.estado==='pendiente').length;
-  const pct=totalT?fmt(completadas/totalT*100):0;
-  const campActivas=campanas.filter(c=>c.resultado==='activa').length;
-  const alcanceTotal=contenidos.filter(c=>c.estado==='publicado').reduce((a,c)=>a+c.alcance,0);
-  document.getElementById('dash-row2').innerHTML=`
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">% Cumplimiento de tareas</div><div class="panel-action" onclick="nav('tareas')">Ver tablero →</div></div>
-      <div class="panel-body">
-        <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:10px">
-          <div style="font-size:36px;font-weight:700;font-family:var(--mono);color:${pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)'};">${pct}%</div>
-          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">completadas</div>
-        </div>
-        <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)'}"></div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
-          <div style="text-align:center;background:rgba(255,59,48,0.06);border-radius:8px;padding:8px"><div style="font-size:20px;font-weight:700;font-family:var(--mono);color:var(--red)">${pendientes}</div><div style="font-size:10px;color:var(--text3)">Pendientes</div></div>
-          <div style="text-align:center;background:rgba(255,149,0,0.06);border-radius:8px;padding:8px"><div style="font-size:20px;font-weight:700;font-family:var(--mono);color:var(--amber)">${enProceso}</div><div style="font-size:10px;color:var(--text3)">En proceso</div></div>
-          <div style="text-align:center;background:rgba(52,199,89,0.06);border-radius:8px;padding:8px"><div style="font-size:20px;font-weight:700;font-family:var(--mono);color:var(--green)">${completadas}</div><div style="font-size:10px;color:var(--text3)">Completadas</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">Campañas activas</div><div class="panel-action" onclick="nav('campanas')">Ver todas →</div></div>
-      <div class="panel-body">
-        <div style="font-size:42px;font-weight:700;font-family:var(--mono);color:var(--accent);line-height:1">${campActivas}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">campañas en curso</div>
-        <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
-        ${campanas.filter(c=>c.resultado==='activa').map(c=>`
-          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(88,86,214,0.05);border-radius:8px;border:1px solid var(--border)">
-            <span class="canal-badge ${CANAL_CLS[c.canal]||''}">${c.canal}</span>
-            <span style="font-size:12px;font-weight:500;flex:1">${c.nombre}</span>
-            <span style="font-size:12px;font-family:var(--mono);color:var(--green);font-weight:600">${c.leads} leads</span>
-          </div>`).join('')}
-        </div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><div class="panel-title">Métricas de alcance</div></div>
-      <div class="panel-body">
-        <div style="font-size:36px;font-weight:700;font-family:var(--mono);color:var(--blue);line-height:1">${alcanceTotal.toLocaleString()}</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:4px">personas alcanzadas</div>
-        <div style="margin-top:14px">
-        ${CANALES.filter(c=>c!=='Evento'&&c!=='Email').map(c=>{const cnt=contenidos.filter(x=>x.canal.includes(c.includes('LinkedIn')?'LinkedIn':'Instagram')).reduce((a,x)=>a+x.alcance,0);return`<div class="canal-row"><div class="canal-name">${c}</div><div class="bar-track"><div class="bar-fill" style="width:${alcanceTotal?fmt(cnt/alcanceTotal*100):0}%;background:${CANAL_C[c]}"></div></div><div class="canal-num">${cnt.toLocaleString()}</div></div>`;}).join('')}
-        </div>
-      </div>
-    </div>`;
-
-  // Leads
-  document.getElementById('dash-leads').innerHTML=leads.slice(0,5).map(l=>`
-    <div class="lead-item">
-      <div class="lead-dot" style="background:${dotColor(l.estado)}"></div>
-      <div class="lead-info"><div class="lead-name">${l.empresa}</div><div class="lead-meta">${l.canal} · ${l.campana}</div></div>
-      <span class="tag ${TAG_CLS[l.estado]||''}">${ESTADO_L[l.estado]}</span>
-    </div>`).join('');
-
-  // Canales
-  const byC={};CANALES.forEach(c=>byC[c]=0);leads.forEach(l=>byC[l.canal]=(byC[l.canal]||0)+1);
-  const mx=Math.max(...Object.values(byC),1);
-  document.getElementById('dash-canales').innerHTML=CANALES.map(c=>`
-    <div class="canal-row">
-      <div class="canal-name">${c}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${fmt(byC[c]/mx*100)}%;background:${CANAL_C[c]}"></div></div>
-      <div class="canal-num">${byC[c]}</div>
-    </div>`).join('');
-
-  // Métricas equipo
-  document.getElementById('dash-equipo').innerHTML=TEAM.map(name=>{
-    const miTareas=tareas.filter(t=>t.responsable===name);
-    const miComp=miTareas.filter(t=>t.estado==='completada').length;
-    const miLeads=leads.filter(l=>l.responsable===name).length;
-    const pctT=miTareas.length?fmt(miComp/miTareas.length*100):0;
-    return`<div class="team-metric-card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        ${av(name,32)}
-        <div><div style="font-weight:700;font-size:14px">${name}</div><div style="font-size:11px;color:var(--text3)">${{Ana:'Copy & estrategia',Jassiel:'Publicación & gestión',Maria:'Diseño'}[name]}</div></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;font-family:var(--mono)">${miTareas.length}</div><div style="font-size:10px;color:var(--text3)">Tareas total</div></div>
-        <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;font-family:var(--mono);color:var(--green)">${miComp}</div><div style="font-size:10px;color:var(--text3)">Completadas</div></div>
-        <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;font-family:var(--mono);color:var(--blue)">${miLeads}</div><div style="font-size:10px;color:var(--text3)">Leads asign.</div></div>
-        <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;font-family:var(--mono);color:${pctT>=70?'var(--green)':pctT>=40?'var(--amber)':'var(--red)'}">${pctT}%</div><div style="font-size:10px;color:var(--text3)">Cumplimiento</div></div>
-      </div>
-    </div>`;}).join('');
-
-  // Alcance full panel
-  const totalAlcance=contenidos.reduce((a,c)=>a+c.alcance,0);
-  const totalInterac=contenidos.reduce((a,c)=>a+c.interacciones,0);
-  const totalLeadsContenido=contenidos.reduce((a,c)=>a+c.leads,0);
-  document.getElementById('dash-alcance').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
-      <div style="text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--blue)">${totalAlcance.toLocaleString()}</div><div style="font-size:11px;color:var(--text3)">Alcance total</div></div>
-      <div style="text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--accent)">${totalInterac.toLocaleString()}</div><div style="font-size:11px;color:var(--text3)">Interacciones</div></div>
-      <div style="text-align:center"><div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--green)">${totalLeadsContenido}</div><div style="font-size:11px;color:var(--text3)">Leads generados</div></div>
-    </div>
-    ${contenidos.filter(c=>c.alcance>0).map(c=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-        <span class="canal-badge ${c.canal==='Instagram'?'cb-ig':'cb-li'}">${c.canal==='Instagram'?'IG':'LI'}</span>
-        <div style="flex:1;font-size:12px;font-weight:500">${c.tema}</div>
-        <div style="font-size:11px;font-family:var(--mono);color:var(--blue)">${c.alcance.toLocaleString()}</div>
-        ${c.leads>0?`<div style="font-size:11px;font-family:var(--mono);color:var(--green)">${c.leads} leads</div>`:''}
-      </div>`).join('')}`;
-
-  const pends=[
-    ...tareas.filter(t=>t.estado!=='completada'&&t.fecha<today()).map(t=>`<div class="lead-item"><span style="color:var(--red);font-size:14px">⚑</span><div class="lead-info"><div class="lead-name">Tarea vencida</div><div class="lead-meta">${t.titulo} · ${t.responsable}</div></div></div>`),
-    ...leads.filter(l=>l.estado==='nuevo'||l.estado==='sin_respuesta').map(l=>`<div class="lead-item"><span style="color:var(--amber);font-size:14px">◎</span><div class="lead-info"><div class="lead-name">Lead sin seguimiento</div><div class="lead-meta">${l.empresa} · ${l.canal}</div></div></div>`),
-  ];
-  document.getElementById('dash-pendientes').innerHTML=pends.slice(0,6).join('')||'<div class="section-empty">Sin pendientes críticos</div>';
-}
-
-// ─── LEADS ───────────────────────────────────────────────────
-function renderLeads(){
-  let data=leads;
-  if(leadsEstadoFilter!=='todos')data=data.filter(l=>l.estado===leadsEstadoFilter);
-  if(leadsRespFilter)data=data.filter(l=>l.responsable===leadsRespFilter);
-  if(teamFilter)data=data.filter(l=>l.responsable===teamFilter);
-  document.getElementById('leads-tbody').innerHTML=data.map(l=>`
-    <tr>
-      <td><div style="font-weight:600">${l.empresa}</div></td>
-      <td><span class="canal-badge ${CANAL_CLS[l.canal]||''}">${l.canal}</span></td>
-      <td style="color:var(--text2);font-size:12px">${l.campana}</td>
-      <td style="color:var(--text3)">${l.tipo}</td>
-      <td><span class="tag ${TAG_CLS[l.estado]||''}">${ESTADO_L[l.estado]}</span></td>
-      <td><div style="display:flex;align-items:center;gap:6px">${av(l.responsable,20)}<span>${l.responsable}</span></div></td>
-      <td style="color:var(--text3);font-family:var(--mono);font-size:11px">${l.fecha}</td>
-      <td><select style="background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:11px;font-family:var(--font);outline:none;cursor:pointer" onchange="updateLeadEstado('${l.id}',this.value)">
-        ${Object.entries(ESTADO_L).map(([k,v])=>`<option value="${k}" ${k===l.estado?'selected':''}>${v}</option>`).join('')}
-      </select></td>
-    </tr>`).join('')||`<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text3)">Sin leads</td></tr>`;
-  document.getElementById('badge-leads').textContent=leads.filter(l=>l.estado==='nuevo').length;
-}
-async function updateLeadEstado(id,estado){const l=leads.find(x=>String(x.id)===String(id));if(l){l.estado=estado;notify('Lead: '+ESTADO_L[estado]);renderLeads();await supabaseClient.from('leads').update({estado}).eq('id',id);}}
-function filterLeads(estado,el){leadsEstadoFilter=estado;document.querySelectorAll('#page-leads .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderLeads();}
-function toggleLeadsResp(name){leadsRespFilter=leadsRespFilter===name?null:name;['Ana','Jassiel','Maria'].forEach(n=>{const b=document.getElementById('rb-'+n);if(b)b.className='resp-btn'+(leadsRespFilter===n?' ractive-'+n.toLowerCase().slice(0,3):'');});renderLeads();}
-
-// ─── CONTENIDO ───────────────────────────────────────────────
-function renderContenido(){
-  let data=contenidos;
-  if(contenidoFilter!=='todos')data=data.filter(c=>c.estado===contenidoFilter);
-  document.getElementById('contenido-grid').innerHTML=data.map(c=>`
-    <div class="content-card" onclick="openContenidoDetail('${c.id}')">
-      <div class="cc-top">
-        <div class="cc-channel"><span class="canal-badge ${c.canal==='Instagram'?'cb-ig':'cb-li'}">${c.canal}</span><span class="cc-tipo">${c.tipo}</span></div>
-        <div class="cc-title">${c.tema}</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:5px">📅 ${c.fecha} · ${c.objetivo}</div>
-      </div>
-      <div class="cc-bottom">
-        <div class="flow-dot" style="background:${FLOW_C[c.estado]||'#8E8E93'}"></div>
-        <span style="color:${FLOW_C[c.estado]||'var(--text3)'};font-size:11px;font-weight:600">${c.estado}</span>
-        ${c.leads>0?`<div style="margin-left:auto;font-size:12px;color:var(--green);font-family:var(--mono);font-weight:600">${c.leads} leads</div>`:''}
-        ${c.alcance>0?`<div style="font-size:11px;color:var(--text3);font-family:var(--mono)">${c.alcance.toLocaleString()}</div>`:''}
-      </div>
-      <div style="padding:8px 14px 12px;display:flex;gap:8px;align-items:center;border-top:1px solid var(--border)">
-        <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text3)">${av('Ana',15)} <span>copy</span></div>
-        <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text3)">${av('Maria',15)} <span>diseño</span></div>
-        <div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--text3)">${av('Jassiel',15)} <span>pub</span></div>
-        <div style="margin-left:auto">
-          <select style="background:var(--bg3);border:1.5px solid var(--border);border-radius:6px;padding:2px 6px;color:var(--text);font-size:10px;font-family:var(--font);outline:none;cursor:pointer" onclick="event.stopPropagation()" onchange="updateContenidoEstado('${c.id}',this.value)">
-            ${['idea','redaccion','diseño','revision','aprobado','programado','publicado'].map(s=>`<option value="${s}" ${s===c.estado?'selected':''}>${s}</option>`).join('')}
-          </select>
-        </div>
-      </div>
-    </div>`).join('')||'<div class="section-empty" style="grid-column:1/-1">Sin contenidos</div>';
-}
-async function updateContenidoEstado(id,estado){const c=contenidos.find(x=>String(x.id)===String(id));if(c){c.estado=estado;notify('Estado: '+estado);renderContenido();await supabaseClient.from('contenidos').update({estado}).eq('id',id);}}
-function filterContenido(estado,el){contenidoFilter=estado;document.querySelectorAll('#page-contenido .filter-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderContenido();}
-function openContenidoDetail(id){
-  const c=contenidos.find(x=>String(x.id)===String(id));if(!c)return;
-  document.getElementById('detail-content').innerHTML=`
-    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;padding-right:32px">${c.tema}</h2>
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <span class="canal-badge ${c.canal==='Instagram'?'cb-ig':'cb-li'}">${c.canal}</span>
-      <span style="font-size:11px;color:var(--text3)">${c.tipo} · ${c.objetivo}</span>
-      <span style="margin-left:auto;font-size:11px;color:${FLOW_C[c.estado]};font-weight:600">${c.estado}</span>
-    </div>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">EQUIPO</div>
-    <div style="display:flex;gap:16px;margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:6px">${av('Ana',22)} <div><div style="font-size:12px;font-weight:500">Ana</div><div style="font-size:10px;color:var(--text3)">Copy</div></div></div>
-      <div style="display:flex;align-items:center;gap:6px">${av('Maria',22)} <div><div style="font-size:12px;font-weight:500">Maria</div><div style="font-size:10px;color:var(--text3)">Diseño</div></div></div>
-      <div style="display:flex;align-items:center;gap:6px">${av('Jassiel',22)} <div><div style="font-size:12px;font-weight:500">Jassiel</div><div style="font-size:10px;color:var(--text3)">Publicación</div></div></div>
-    </div>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">COPY</div>
-    <textarea id="dc-copy" style="width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:12.5px;color:var(--text);font-family:var(--font);line-height:1.6;resize:vertical;min-height:80px;outline:none" placeholder="Escribe el copy aquí...">${c.copy||''}</textarea>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">NOTAS DE PRODUCCIÓN</div>
-    <textarea id="dc-notas" style="width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:12.5px;color:var(--text);font-family:var(--font);line-height:1.6;resize:vertical;min-height:60px;outline:none" placeholder="Notas para diseño, briefing...">${c.notas||''}</textarea>
-    ${c.estado==='publicado'?`
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">MÉTRICAS</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--blue)">${c.alcance.toLocaleString()}</div><div style="font-size:10px;color:var(--text3)">Alcance</div></div>
-      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--accent)">${c.interacciones}</div><div style="font-size:10px;color:var(--text3)">Interacciones</div></div>
-      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--teal)">${c.clics}</div><div style="font-size:10px;color:var(--text3)">Clics</div></div>
-      <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;font-family:var(--mono);color:var(--green)">${c.leads}</div><div style="font-size:10px;color:var(--text3)">Leads</div></div>
-    </div>`:''}
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn btn-primary" style="flex:1" onclick="saveContenidoDetail(${c.id})">Guardar</button>
-    </div>`;
-  openDetail();
-}
-function saveContenidoDetail(id){
-  const c=contenidos.find(x=>String(x.id)===String(id));if(!c)return;
-  c.copy=document.getElementById('dc-copy').value;
-  c.notas=document.getElementById('dc-notas').value;
-  closeDetail();notify('Contenido guardado');renderContenido();
-}
-
-// ─── CALENDARIO ──────────────────────────────────────────────
-function renderCalendar(){
-  const y=calDate.getFullYear(),m=calDate.getMonth();
-  const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  document.getElementById('cal-title').textContent=months[m]+' '+y;
-  const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  document.getElementById('cal-header').innerHTML=days.map(d=>`<div class="cal-day-label">${d}</div>`).join('');
-  const firstDay=new Date(y,m,1).getDay();
-  const daysInMonth=new Date(y,m+1,0).getDate();
-  const todayStr=today();
-  let html='';
-  for(let i=0;i<firstDay;i++){
-    const d=new Date(y,m,-(firstDay-1-i));
-    html+=`<div class="cal-day other-month"><div class="cal-date">${d.getDate()}</div></div>`;
+  if (session) {
+    await loadUserProfile(session.user);
+    showApp();
+  } else {
+    show('auth-screen');
   }
-  for(let d=1;d<=daysInMonth;d++){
-    const dateStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const isToday=dateStr===todayStr;
-    const dayContenidos=contenidos.filter(c=>c.fecha===dateStr);
-    const eventsHtml=dayContenidos.map(c=>{
-      const color=c.canal==='Instagram'?'rgba(255,45,85,0.15)':'rgba(90,200,250,0.15)';
-      const tc=c.canal==='Instagram'?'var(--pink)':'#0a84ff';
-      return`<div class="cal-event" style="background:${color};color:${tc}" onclick="event.stopPropagation();openContenidoDetail('${c.id}')" title="${c.tema}">${c.tema}</div>`;
-    }).join('');
-    html+=`<div class="cal-day${isToday?' today':''}" onclick="calDayClick('${dateStr}')">
-      <div class="cal-date${isToday?' today-num':''}">${d}</div>
-      ${eventsHtml}
-    </div>`;
-  }
-  document.getElementById('cal-grid').innerHTML=html;
-}
-function calPrev(){calDate=new Date(calDate.getFullYear(),calDate.getMonth()-1,1);renderCalendar();}
-function calNext(){calDate=new Date(calDate.getFullYear(),calDate.getMonth()+1,1);renderCalendar();}
-function changeCalView(v){notify('Vista: '+v);}
-function calDayClick(dateStr){
-  FORMS.contenido.extra={fecha:dateStr};
-  showModal('contenido');
-  setTimeout(()=>{const f=document.getElementById('f-fecha');if(f)f.value=dateStr;},50);
-}
 
-// ─── TAREAS ──────────────────────────────────────────────────
-function renderTareas(){
-  const estados=['pendiente','en_proceso','revision','completada'];
-  const labels={pendiente:'Pendiente',en_proceso:'En proceso',revision:'En revisión',completada:'Completada'};
-  const colors={pendiente:'var(--red)',en_proceso:'var(--amber)',revision:'var(--blue)',completada:'var(--green)'};
-  const filter=tareasRespFilter||teamFilter;
-  document.getElementById('kanban-board').innerHTML=estados.map(est=>{
-    let cards=tareas.filter(t=>t.estado===est);
-    if(filter)cards=cards.filter(t=>t.responsable===filter);
-    return`<div class="kanban-col">
-      <div class="kanban-header">
-        <div class="kanban-title" style="color:${colors[est]}">${labels[est]}</div>
-        <div class="kanban-count">${cards.length}</div>
-      </div>
-      <div class="kanban-body">
-        ${cards.map(t=>`
-          <div class="k-card" onclick="avanzarTarea('${t.id}')" title="Clic para avanzar">
-            <div class="k-title">${t.titulo}</div>
-            <div class="k-footer">
-              <div style="display:flex;align-items:center;gap:5px">${av(t.responsable,18)}<span class="k-area">${t.area}</span></div>
-              <div class="k-prio ${t.prioridad==='alta'?'prio-a':t.prioridad==='media'?'prio-m':'prio-b'}"></div>
-            </div>
-          </div>`).join('')||`<div style="color:var(--text3);font-size:11px;padding:12px 0;text-align:center">Sin tareas</div>`}
-      </div>
-    </div>`;}).join('');
-  const v=tareas.filter(t=>t.estado!=='completada'&&t.fecha<today()).length;
-  document.getElementById('badge-tareas').textContent=v;
-}
-async function avanzarTarea(id){const t=tareas.find(x=>String(x.id)===String(id));if(!t)return;const fl=['pendiente','en_proceso','revision','completada'];const i=fl.indexOf(t.estado);if(i<fl.length-1){t.estado=fl[i+1];renderTareas();notify('→ '+{pendiente:'Pendiente',en_proceso:'En proceso',revision:'En revisión',completada:'Completada'}[t.estado]);await supabaseClient.from('tareas').update({estado:t.estado}).eq('id',id);}else notify('Ya está completada');}
-function toggleTareasResp(name){tareasRespFilter=tareasRespFilter===name?null:name;['Ana','Jassiel','Maria'].forEach(n=>{const b=document.getElementById('tb-'+n);if(b)b.className='resp-btn'+(tareasRespFilter===n?' ractive-'+n.toLowerCase().slice(0,3):'');});renderTareas();}
-
-// ─── EMAIL ───────────────────────────────────────────────────
-function renderEmails(){
-  const totalEnv=emails.reduce((a,e)=>a+e.enviados,0);
-  const avgOpen=emails.length?fmt(emails.reduce((a,e)=>a+e.open,0)/emails.length):0;
-  const avgClick=emails.length?(emails.reduce((a,e)=>a+e.click,0)/emails.length).toFixed(1):0;
-  const totalLeadsE=emails.reduce((a,e)=>a+e.leads,0);
-  document.getElementById('email-kpis').innerHTML=`
-    <div class="kpi-card"><div class="kpi-label">Total enviados</div><div class="kpi-value">${totalEnv.toLocaleString()}</div><div class="kpi-delta up">Acumulado</div></div>
-    <div class="kpi-card"><div class="kpi-label">Open rate prom.</div><div class="kpi-value">${avgOpen}%</div><div class="kpi-delta up">↑ vs industria 21%</div></div>
-    <div class="kpi-card"><div class="kpi-label">Click rate prom.</div><div class="kpi-value">${avgClick}%</div><div class="kpi-delta up">↑ vs industria 2.6%</div></div>
-    <div class="kpi-card"><div class="kpi-label">Leads generados</div><div class="kpi-value">${totalLeadsE}</div><div class="kpi-delta up">Email → lead</div></div>`;
-  // Bases
-  document.getElementById('bases-list').innerHTML=bases.map(b=>`
-    <div class="db-tag" onclick="editBase('${b.id}')"><span>${b.nombre}</span><span class="count">${b.leads.toLocaleString()}</span></div>`).join('');
-  // Campañas
-  document.getElementById('email-list').innerHTML=emails.map(e=>`
-    <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="flex:1">
-          <div style="font-weight:600;font-size:13.5px">${e.nombre}</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:2px;font-style:italic">"${e.asunto}"</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:1px">Bases: ${(e.bases||[]).join(', ')} · ${e.fecha}</div>
-        </div>
-        <div style="display:flex;gap:16px;align-items:center;flex-shrink:0">
-          <div style="text-align:center"><div style="font-size:18px;font-weight:700;font-family:var(--mono)">${e.enviados.toLocaleString()}</div><div style="font-size:10px;color:var(--text3)">enviados</div></div>
-          <div style="text-align:center"><div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--blue)">${e.open}%</div><div style="font-size:10px;color:var(--text3)">open</div></div>
-          <div style="text-align:center"><div style="font-size:18px;font-weight:700;font-family:var(--mono);color:#5AC8FA">${e.click}%</div><div style="font-size:10px;color:var(--text3)">click</div></div>
-          <div style="text-align:center"><div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--green)">${e.leads}</div><div style="font-size:10px;color:var(--text3)">leads</div></div>
-          <div style="text-align:center"><div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--accent)">${e.ventas}</div><div style="font-size:10px;color:var(--text3)">→ventas</div></div>
-          ${e.htmlCode?`<button class="btn btn-ghost btn-sm" onclick="previewHTML('${e.id}','email')">Preview</button>`:''}
-          <button class="btn btn-ghost btn-sm" onclick="openEmailDetail('${e.id}')">Editar</button>
-        </div>
-      </div>
-    </div>`).join('');
-}
-function openEmailDetail(id){
-  const e=emails.find(x=>String(x.id)===String(id));if(!e)return;
-  document.getElementById('detail-content').innerHTML=`
-    <h2 style="font-size:17px;font-weight:700;margin-bottom:16px;padding-right:32px">${e.nombre}</h2>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">BASES DE DATOS</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
-      ${bases.map(b=>`<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px"><input type="checkbox" ${(e.bases||[]).includes(b.nombre)?'checked':''} onchange="toggleEmailBase('${id}','${b.nombre}',this.checked)"> ${b.nombre} <span style="color:var(--text3)">(${b.leads.toLocaleString()})</span></label>`).join('')}
-    </div>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">CÓDIGO HTML DEL CORREO</div>
-    <textarea id="de-html" class="code-editor" rows="12" placeholder="Pega aquí el código HTML del correo...">${e.htmlCode||''}</textarea>
-    <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="previewEmailHTML('${id}')">👁 Vista previa</button>
-    <div id="de-preview" style="margin-top:10px"></div>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">MÉTRICAS</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
-      <div><div class="form-label">Enviados</div><input type="number" class="form-input" id="de-env" value="${e.enviados}"></div>
-      <div><div class="form-label">Open rate %</div><input type="number" class="form-input" id="de-open" value="${e.open}" step="0.1"></div>
-      <div><div class="form-label">Click rate %</div><input type="number" class="form-input" id="de-click" value="${e.click}" step="0.1"></div>
-      <div><div class="form-label">Leads generados</div><input type="number" class="form-input" id="de-leads" value="${e.leads}"></div>
-      <div><div class="form-label">Leads → Ventas</div><input type="number" class="form-input" id="de-ventas" value="${e.ventas}"></div>
-    </div>
-    <button class="btn btn-primary" style="width:100%" onclick="saveEmailDetail('${id}')">Guardar cambios</button>`;
-  openDetail();
-}
-function previewEmailHTML(id){
-  const html=document.getElementById('de-html').value;
-  const prev=document.getElementById('de-preview');
-  if(!html){prev.innerHTML='';return;}
-  prev.innerHTML=`<div style="font-size:11px;color:var(--text3);margin-bottom:6px">Vista previa:</div><iframe class="preview-iframe" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
-}
-function toggleEmailBase(id,nombre,checked){const e=emails.find(x=>String(x.id)===String(id));if(!e)return;if(!e.bases)e.bases=[];if(checked){if(!e.bases.includes(nombre))e.bases.push(nombre);}else{e.bases=e.bases.filter(b=>b!==nombre);}}
-function saveEmailDetail(id){
-  const e=emails.find(x=>String(x.id)===String(id));if(!e)return;
-  e.htmlCode=document.getElementById('de-html').value;
-  e.enviados=parseInt(document.getElementById('de-env').value)||0;
-  e.open=parseFloat(document.getElementById('de-open').value)||0;
-  e.click=parseFloat(document.getElementById('de-click').value)||0;
-  e.leads=parseInt(document.getElementById('de-leads').value)||0;
-  e.ventas=parseInt(document.getElementById('de-ventas').value)||0;
-  closeDetail();notify('Email actualizado');renderEmails();
-}
-function editBase(id){showModal('basedatos',id);}
-
-// ─── SEO ─────────────────────────────────────────────────────
-function renderSEO(){
-  const totalTrafico=articulos.reduce((a,x)=>a+x.trafico,0);
-  const totalLeadsSEO=articulos.reduce((a,x)=>a+x.leads,0);
-  const avgPos=articulos.length?(articulos.reduce((a,x)=>a+x.pos,0)/articulos.length).toFixed(1):0;
-  document.getElementById('seo-kpis').innerHTML=`
-    <div class="kpi-card"><div class="kpi-label">Tráfico total</div><div class="kpi-value">${totalTrafico.toLocaleString()}</div><div class="kpi-delta up">Sesiones orgánicas</div></div>
-    <div class="kpi-card"><div class="kpi-label">Leads del blog</div><div class="kpi-value">${totalLeadsSEO}</div><div class="kpi-delta up">Artículos → leads</div></div>
-    <div class="kpi-card"><div class="kpi-label">Posición media</div><div class="kpi-value">${avgPos}</div><div class="kpi-delta up">Google Search</div></div>
-    <div class="kpi-card"><div class="kpi-label">Artículos</div><div class="kpi-value">${articulos.length}</div><div class="kpi-delta up">Publicados</div></div>`;
-  document.getElementById('seo-tbody').innerHTML=articulos.map(a=>`
-    <tr>
-      <td><div style="font-weight:600">${a.titulo}</div></td>
-      <td><span style="font-size:11px;color:var(--text3);font-family:var(--mono)">${a.kw}</span></td>
-      <td style="color:var(--text3);font-size:11px;font-family:var(--mono)">${a.fecha}</td>
-      <td><span style="font-weight:700;font-family:var(--mono)">${a.trafico.toLocaleString()}</span></td>
-      <td><span style="font-weight:700;color:var(--green);font-family:var(--mono)">${a.leads}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openSEODetail('${a.id}')">Editar / Ver</button></td>
-    </tr>`).join('');
-}
-function openSEODetail(id){
-  const a=articulos.find(x=>String(x.id)===String(id));if(!a)return;
-  document.getElementById('detail-content').innerHTML=`
-    <h2 style="font-size:17px;font-weight:700;margin-bottom:4px;padding-right:32px">${a.titulo}</h2>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--mono)">${a.kw} · ${a.fecha}</div>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">MÉTRICAS DE RESULTADO</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-      <div><div class="form-label">Sesiones</div><input type="number" class="form-input" id="sa-ses" value="${a.sesiones||a.trafico}"></div>
-      <div><div class="form-label">Leads</div><input type="number" class="form-input" id="sa-leads" value="${a.leads}"></div>
-      <div><div class="form-label">Tasa rebote %</div><input type="number" class="form-input" id="sa-reb" value="${a.rebote||0}" step="0.1"></div>
-      <div><div class="form-label">Posición Google</div><input type="number" class="form-input" id="sa-pos" value="${a.pos||0}" step="0.1"></div>
-      <div><div class="form-label">Clics GSC</div><input type="number" class="form-input" id="sa-clics" value="${a.clics||0}"></div>
-      <div><div class="form-label">Impresiones</div><input type="number" class="form-input" id="sa-imp" value="${a.impresiones||0}"></div>
-    </div>
-    <div class="section-divider"></div>
-    <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">CÓDIGO HTML DEL ARTÍCULO</div>
-    <textarea id="sa-html" class="code-editor" rows="14" placeholder="Pega aquí el HTML del artículo de blog...">${a.htmlCode||''}</textarea>
-    <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="previewSEOHTML('${id}')">👁 Vista previa</button>
-    <div id="sa-preview" style="margin-top:10px"></div>
-    <button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="saveSEODetail('${id}')">Guardar</button>`;
-  openDetail();
-}
-function previewSEOHTML(id){
-  const html=document.getElementById('sa-html').value;
-  const prev=document.getElementById('sa-preview');
-  if(!html){prev.innerHTML='';return;}
-  prev.innerHTML=`<div style="font-size:11px;color:var(--text3);margin-bottom:6px">Vista previa:</div><iframe class="preview-iframe" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
-}
-function saveSEODetail(id){
-  const a=articulos.find(x=>String(x.id)===String(id));if(!a)return;
-  a.htmlCode=document.getElementById('sa-html').value;
-  a.sesiones=parseInt(document.getElementById('sa-ses').value)||0;
-  a.trafico=a.sesiones;
-  a.leads=parseInt(document.getElementById('sa-leads').value)||0;
-  a.rebote=parseFloat(document.getElementById('sa-reb').value)||0;
-  a.pos=parseFloat(document.getElementById('sa-pos').value)||0;
-  a.clics=parseInt(document.getElementById('sa-clics').value)||0;
-  a.impresiones=parseInt(document.getElementById('sa-imp').value)||0;
-  closeDetail();notify('Artículo guardado');renderSEO();
-}
-
-// ─── EVENTOS ─────────────────────────────────────────────────
-function renderEventos(){
-  document.getElementById('eventos-list').innerHTML=eventos.map(e=>`
-    <div class="panel">
-      <div class="panel-header">
-        <div><div class="panel-title">${e.nombre}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${e.tipo} · ${e.fecha} · ${e.obj}</div></div>
-        <span class="tag ${e.fecha>=today()?'tag-proximo':'tag-enviadoventas'}">${e.fecha>=today()?'Próximo':'Realizado'}</span>
-      </div>
-      <div class="panel-body" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:center">
-        <div><div style="font-size:26px;font-weight:700;font-family:var(--mono)">${e.registrados}</div><div style="font-size:11px;color:var(--text3)">Registrados</div></div>
-        <div><div style="font-size:26px;font-weight:700;font-family:var(--mono)">${e.asistentes}</div><div style="font-size:11px;color:var(--text3)">Asistentes</div></div>
-        <div><div style="font-size:26px;font-weight:700;font-family:var(--mono);color:var(--green)">${e.ventas}</div><div style="font-size:11px;color:var(--text3)">→ Ventas</div></div>
-      </div>
-    </div>`).join('');
-}
-
-// ─── CAMPAÑAS ────────────────────────────────────────────────
-function renderCampanas(){
-  document.getElementById('campanas-list').innerHTML=campanas.map(c=>`
-    <div class="panel">
-      <div class="panel-header">
-        <div><div class="panel-title">${c.nombre}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.obj}</div></div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:10px;color:var(--text3)">${c.inicio} → ${c.fin}</span>
-          <span class="tag tag-${c.resultado}">${c.resultado}</span>
-        </div>
-      </div>
-      <div class="panel-body" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:6px">${av(c.responsable,24)}<span style="font-size:12px;color:var(--text2)">${c.responsable}</span></div>
-        <span class="canal-badge ${CANAL_CLS[c.canal]||''}">${c.canal}</span>
-        <div style="margin-left:auto;display:flex;gap:24px;text-align:center">
-          <div><div style="font-size:24px;font-weight:700;font-family:var(--mono)">${c.leads}</div><div style="font-size:10px;color:var(--text3)">Leads</div></div>
-          <div><div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--green)">${c.ventas}</div><div style="font-size:10px;color:var(--text3)">→ Ventas</div></div>
-          <div><div style="font-size:24px;font-weight:700;font-family:var(--mono);color:var(--accent)">${c.leads?fmt(c.ventas/c.leads*100):0}%</div><div style="font-size:10px;color:var(--text3)">Conversión</div></div>
-        </div>
-      </div>
-    </div>`).join('');
-}
-
-// ─── DETAIL PANEL ─────────────────────────────────────────────
-function openDetail(){document.getElementById('detail-overlay').classList.add('show');document.getElementById('detail-panel').classList.add('show');}
-function closeDetail(){document.getElementById('detail-overlay').classList.remove('show');document.getElementById('detail-panel').classList.remove('show');}
-
-// ─── MODALS ───────────────────────────────────────────────────
-const FORMS={
-  lead:{title:'Nuevo lead',html:()=>`
-    <div class="form-row"><label class="form-label">Empresa / Contacto</label><input class="form-input" id="f-empresa" placeholder="Nombre de la empresa"></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Canal de origen</label><select class="form-select" id="f-canal">${CANALES.map(c=>`<option>${c}</option>`).join('')}</select></div>
-      <div class="form-row"><label class="form-label">Tipo</label><select class="form-select" id="f-tipo"><option>frío</option><option>interesado</option><option>calificado</option></select></div>
-    </div>
-    <div class="form-row"><label class="form-label">Campaña asociada</label><input class="form-input" id="f-camp" placeholder="Nombre de la campaña"></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Responsable</label><select class="form-select" id="f-resp">${TEAM.map(t=>`<option>${t}</option>`).join('')}</select></div>
-      <div class="form-row"><label class="form-label">Estado inicial</label><select class="form-select" id="f-estado">${Object.entries(ESTADO_L).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
-    </div>
-    <div class="form-row"><label class="form-label">Notas</label><textarea class="form-input" id="f-notas" rows="2" placeholder="Contexto, notas..."></textarea></div>`,
-    save:()=>{const v=document.getElementById('f-empresa').value;if(!v){notify('Ingresa la empresa');return false;}leads.unshift({id:Date.now(),empresa:v,canal:document.getElementById('f-canal').value,campana:document.getElementById('f-camp').value||'—',tipo:document.getElementById('f-tipo').value,estado:document.getElementById('f-estado').value,responsable:document.getElementById('f-resp').value,fecha:today()});return true;}
-  },
-  tarea:{title:'Nueva tarea',html:()=>`
-    <div class="form-row"><label class="form-label">Título de la tarea</label><input class="form-input" id="f-tit" placeholder="¿Qué hay que hacer?"></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Responsable</label><select class="form-select" id="f-resp">${TEAM.map(t=>`<option>${t}</option>`).join('')}</select></div>
-      <div class="form-row"><label class="form-label">Área</label><select class="form-select" id="f-area"><option>contenido</option><option>email</option><option>SEO</option><option>evento</option><option>estrategia</option></select></div>
-    </div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Prioridad</label><select class="form-select" id="f-prio"><option>alta</option><option selected>media</option><option>baja</option></select></div>
-      <div class="form-row"><label class="form-label">Fecha límite</label><input class="form-input" id="f-fecha" type="date" value="${today()}"></div>
-    </div>`,
-    save:()=>{const v=document.getElementById('f-tit').value;if(!v){notify('Ingresa el título');return false;}tareas.unshift({id:Date.now(),titulo:v,responsable:document.getElementById('f-resp').value,area:document.getElementById('f-area').value,prioridad:document.getElementById('f-prio').value,estado:'pendiente',fecha:document.getElementById('f-fecha').value});return true;}
-  },
-  contenido:{title:'Nuevo contenido',extra:{},html:()=>`
-    <div class="form-row"><label class="form-label">Tema / Título</label><input class="form-input" id="f-tema" placeholder="¿De qué trata?"></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Canal</label><select class="form-select" id="f-can"><option>Instagram</option><option>LinkedIn</option></select></div>
-      <div class="form-row"><label class="form-label">Tipo</label><select class="form-select" id="f-tipo"><option>arte</option><option>carrusel</option><option>reel</option></select></div>
-    </div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Objetivo</label><select class="form-select" id="f-obj"><option>branding</option><option>educación</option><option>leads</option></select></div>
-      <div class="form-row"><label class="form-label">Fecha publicación</label><input class="form-input" id="f-fecha" type="date"></div>
-    </div>
-    <div style="background:rgba(88,86,214,0.06);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text3);border:1px solid rgba(88,86,214,0.15)">Responsabilidades: <span style="color:var(--accent);font-weight:600">Ana</span> copy · <span style="color:var(--pink);font-weight:600">Maria</span> diseño · <span style="color:#0a84ff;font-weight:600">Jassiel</span> publicación</div>`,
-    save:()=>{const v=document.getElementById('f-tema').value;if(!v){notify('Ingresa el tema');return false;}contenidos.unshift({id:Date.now(),canal:document.getElementById('f-can').value,tipo:document.getElementById('f-tipo').value,tema:v,objetivo:document.getElementById('f-obj').value,estado:'idea',alcance:0,interacciones:0,clics:0,leads:0,fecha:document.getElementById('f-fecha').value||'—',copy:'',notas:''});return true;}
-  },
-  email:{title:'Nueva campaña de email',html:()=>`
-    <div class="form-row"><label class="form-label">Nombre de campaña</label><input class="form-input" id="f-nom" placeholder="Newsletter Mayo"></div>
-    <div class="form-row"><label class="form-label">Asunto del email</label><input class="form-input" id="f-asunto" placeholder="El asunto que verá el destinatario"></div>
-    <div class="form-row"><label class="form-label">Bases de datos</label><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">${bases.map(b=>`<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px"><input type="checkbox" name="fbase" value="${b.nombre}"> ${b.nombre} <span style="color:var(--text3)">(${b.leads})</span></label>`).join('')}</div></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Objetivo</label><input class="form-input" id="f-obj" placeholder="Nurturing..."></div>
-      <div class="form-row"><label class="form-label">Fecha de envío</label><input class="form-input" id="f-fecha" type="date"></div>
-    </div>
-    <div class="form-row"><label class="form-label">Código HTML del correo</label><textarea id="f-html" class="code-editor" rows="8" placeholder="Pega el código HTML aquí..."></textarea><p class="form-hint">Puedes editar y previsualizar después desde la campaña</p></div>`,
-    save:()=>{const v=document.getElementById('f-nom').value;if(!v){notify('Ingresa el nombre');return false;}const bs=Array.from(document.querySelectorAll('input[name="fbase"]:checked')).map(x=>x.value);emails.push({id:Date.now(),nombre:v,asunto:document.getElementById('f-asunto').value||'—',bases:bs,obj:document.getElementById('f-obj').value||'—',fecha:document.getElementById('f-fecha').value||'—',htmlCode:document.getElementById('f-html').value||'',enviados:0,open:0,click:0,leads:0,ventas:0});return true;}
-  },
-  basedatos:{title:'Nueva base de datos',html:()=>`
-    <div class="form-row"><label class="form-label">Nombre de la base</label><input class="form-input" id="f-nom" placeholder="Ej: Leads IT octubre"></div>
-    <div class="form-row"><label class="form-label">Cantidad de leads</label><input class="form-input" id="f-cant" type="number" placeholder="0"></div>`,
-    save:()=>{const v=document.getElementById('f-nom').value;if(!v){notify('Ingresa el nombre');return false;}bases.push({id:Date.now(),nombre:v,leads:parseInt(document.getElementById('f-cant').value)||0});return true;}
-  },
-  articulo:{title:'Nuevo artículo SEO',html:()=>`
-    <div class="form-row"><label class="form-label">Título del artículo</label><input class="form-input" id="f-tit" placeholder="Título del post"></div>
-    <div class="form-row"><label class="form-label">Palabra clave principal</label><input class="form-input" id="f-kw" placeholder="keyword objetivo"></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Fecha publicación</label><input class="form-input" id="f-fecha" type="date"></div>
-      <div class="form-row"><label class="form-label">Responsable</label><select class="form-select" id="f-resp">${TEAM.map(t=>`<option>${t}</option>`).join('')}</select></div>
-    </div>
-    <div class="form-row"><label class="form-label">Código HTML del artículo (opcional)</label><textarea id="f-html" class="code-editor" rows="8" placeholder="Pega el HTML del artículo..."></textarea></div>`,
-    save:()=>{const v=document.getElementById('f-tit').value;if(!v){notify('Ingresa el título');return false;}articulos.unshift({id:Date.now(),titulo:v,kw:document.getElementById('f-kw').value||'—',fecha:document.getElementById('f-fecha').value||'—',trafico:0,leads:0,htmlCode:document.getElementById('f-html').value||'',sesiones:0,rebote:0,pos:0,clics:0,impresiones:0});return true;}
-  },
-  evento:{title:'Nuevo evento',html:()=>`
-    <div class="form-row"><label class="form-label">Nombre del evento</label><input class="form-input" id="f-nom" placeholder="Desayuno IT Leaders"></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Tipo</label><select class="form-select" id="f-tipo"><option>webinar</option><option>presencial</option><option>desayuno</option><option>virtual</option></select></div>
-      <div class="form-row"><label class="form-label">Fecha</label><input class="form-input" id="f-fecha" type="date"></div>
-    </div>
-    <div class="form-row"><label class="form-label">Objetivo</label><input class="form-input" id="f-obj" placeholder="Generación de leads calificados..."></div>`,
-    save:()=>{const v=document.getElementById('f-nom').value;if(!v){notify('Ingresa el nombre');return false;}eventos.push({id:Date.now(),nombre:v,tipo:document.getElementById('f-tipo').value,fecha:document.getElementById('f-fecha').value||'—',obj:document.getElementById('f-obj').value||'—',registrados:0,asistentes:0,ventas:0});return true;}
-  },
-  campana:{title:'Nueva campaña',html:()=>`
-    <div class="form-row"><label class="form-label">Nombre</label><input class="form-input" id="f-nom" placeholder="Nombre de la campaña"></div>
-    <div class="form-row"><label class="form-label">Objetivo</label><input class="form-input" id="f-obj" placeholder="¿Qué busca lograr?"></div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Canal principal</label><select class="form-select" id="f-can">${CANALES.map(c=>`<option>${c}</option>`).join('')}</select></div>
-      <div class="form-row"><label class="form-label">Responsable</label><select class="form-select" id="f-resp">${TEAM.map(t=>`<option>${t}</option>`).join('')}</select></div>
-    </div>
-    <div class="form-grid-2">
-      <div class="form-row"><label class="form-label">Fecha inicio</label><input class="form-input" id="f-ini" type="date" value="${today()}"></div>
-      <div class="form-row"><label class="form-label">Fecha fin</label><input class="form-input" id="f-fin" type="date"></div>
-    </div>`,
-    save:()=>{const v=document.getElementById('f-nom').value;if(!v){notify('Ingresa el nombre');return false;}campanas.unshift({id:Date.now(),nombre:v,obj:document.getElementById('f-obj').value||'—',canal:document.getElementById('f-can').value,responsable:document.getElementById('f-resp').value,inicio:document.getElementById('f-ini').value,fin:document.getElementById('f-fin').value||'—',leads:0,ventas:0,resultado:'activa'});return true;}
-  },
-};
-
-function showModal(type){
-  const f=FORMS[type];if(!f){notify('No disponible');return;}
-  currentModal=type;
-  document.getElementById('modal-title').textContent=f.title;
-  document.getElementById('modal-form').innerHTML=f.html();
-  document.getElementById('modal-overlay').classList.add('show');
-}
-function closeModal(){document.getElementById('modal-overlay').classList.remove('show');currentModal=null;}
-function maybeCloseModal(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
-function saveModal(){if(!currentModal)return;const ok=FORMS[currentModal].save();if(ok===false)return;closeModal();notify('Guardado correctamente');renderPage(currentPage);}
-
-// ─── NOTIFICATIONS ────────────────────────────────────────────
-function notify(msg){const el=document.getElementById('notif');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500);}
-
-
-// ─── SUPABASE DATA LAYER ─────────────────────────────────────
-function normalizeRows(table, rows){
-  rows = rows || [];
-  if(table==='bases_datos') return rows.map(r=>({id:r.id,nombre:r.nombre,leads:r.cantidad_leads||0,descripcion:r.descripcion||''}));
-  if(table==='email_campaigns') return rows.map(r=>({id:r.id,nombre:r.nombre,fecha:r.fecha||'—',bases:Array.isArray(r.base_datos)?r.base_datos:(r.base_datos?[r.base_datos]:[]),obj:r.objetivo||'—',asunto:r.asunto||'—',htmlCode:r.html_code||'',enviados:r.enviados||0,open:r.open_rate||0,click:r.click_rate||0,leads:r.leads||0,ventas:r.ventas||0}));
-  if(table==='articulos') return rows.map(r=>({id:r.id,titulo:r.titulo,kw:r.palabra_clave||'—',fecha:r.fecha||'—',trafico:r.trafico||0,leads:r.leads||0,htmlCode:r.html_code||'',sesiones:r.sesiones||r.trafico||0,rebote:r.rebote||0,pos:r.posicion||0,clics:r.clics||0,impresiones:r.impresiones||0}));
-  if(table==='eventos') return rows.map(r=>({id:r.id,nombre:r.nombre,tipo:r.tipo||'—',fecha:r.fecha||'—',obj:r.objetivo||'—',registrados:r.registrados||0,asistentes:r.asistentes||0,ventas:r.ventas||0}));
-  if(table==='campanas') return rows.map(r=>({id:r.id,nombre:r.nombre,obj:r.objetivo||'—',canal:r.canal||'—',inicio:r.inicio||'—',fin:r.fin||'—',responsable:r.responsable||'—',leads:r.leads||0,ventas:r.ventas||0,resultado:r.resultado||'activa'}));
-  return rows;
-}
-
-function toDbPayload(type, item){
-  const copy={...item}; delete copy.id; delete copy.created_at; delete copy.updated_at;
-  if(type==='email') return {nombre:item.nombre,fecha:item.fecha==='—'?null:item.fecha,base_datos:(item.bases||[]).join(', '),objetivo:item.obj,asunto:item.asunto,enviados:item.enviados||0,open_rate:item.open||0,click_rate:item.click||0,leads:item.leads||0,ventas:item.ventas||0,html_code:item.htmlCode||''};
-  if(type==='basedatos') return {nombre:item.nombre,cantidad_leads:item.leads||0,descripcion:item.descripcion||null};
-  if(type==='articulo') return {titulo:item.titulo,palabra_clave:item.kw,fecha:item.fecha==='—'?null:item.fecha,trafico:item.trafico||0,leads:item.leads||0,sesiones:item.sesiones||0,rebote:item.rebote||0,posicion:item.pos||0,html_code:item.htmlCode||''};
-  if(type==='evento') return {nombre:item.nombre,tipo:item.tipo,fecha:item.fecha==='—'?null:item.fecha,objetivo:item.obj,registrados:item.registrados||0,asistentes:item.asistentes||0,ventas:item.ventas||0};
-  if(type==='campana') return {nombre:item.nombre,objetivo:item.obj,canal:item.canal,inicio:item.inicio||null,fin:item.fin==='—'?null:item.fin,responsable:item.responsable,leads:item.leads||0,ventas:item.ventas||0,resultado:item.resultado||'activa'};
-  if(type==='contenido') return {canal:item.canal,tipo:item.tipo,tema:item.tema,objetivo:item.objetivo,estado:item.estado,alcance:item.alcance||0,interacciones:item.interacciones||0,clics:item.clics||0,leads:item.leads||0,fecha:item.fecha==='—'?null:item.fecha,copy:item.copy||'',notas:item.notas||''};
-  if(type==='tarea') return {titulo:item.titulo,area:item.area,responsable:item.responsable,prioridad:item.prioridad,estado:item.estado,fecha:item.fecha||null};
-  if(type==='lead') return {empresa:item.empresa,canal:item.canal,campana:item.campana,tipo:item.tipo,estado:item.estado,responsable:item.responsable,fecha:item.fecha||null};
-  return copy;
-}
-
-const DB_MAP={lead:{table:'leads',arr:()=>leads,set:v=>leads=v},tarea:{table:'tareas',arr:()=>tareas,set:v=>tareas=v},contenido:{table:'contenidos',arr:()=>contenidos,set:v=>contenidos=v},email:{table:'email_campaigns',arr:()=>emails,set:v=>emails=v},basedatos:{table:'bases_datos',arr:()=>bases,set:v=>bases=v},articulo:{table:'articulos',arr:()=>articulos,set:v=>articulos=v},evento:{table:'eventos',arr:()=>eventos,set:v=>eventos=v},campana:{table:'campanas',arr:()=>campanas,set:v=>campanas=v}};
-
-async function loadTable(table, setter){
-  const {data,error}=await supabaseClient.from(table).select('*').order('created_at',{ascending:false});
-  if(error){console.error('Error cargando '+table,error); return;}
-  setter(normalizeRows(table,data));
-}
-
-async function loadSupabaseData(){
-  notify('Conectando con Supabase...');
-  await Promise.all([
-    loadTable('leads',v=>leads=v), loadTable('tareas',v=>tareas=v), loadTable('contenidos',v=>contenidos=v),
-    loadTable('campanas',v=>campanas=v), loadTable('email_campaigns',v=>emails=v), loadTable('bases_datos',v=>bases=v),
-    loadTable('articulos',v=>articulos=v), loadTable('eventos',v=>eventos=v)
-  ]);
-  notify('Datos cargados desde Supabase');
-  renderPage(currentPage);
-}
-
-async function saveModal(){
-  if(!currentModal)return;
-  const cfg=DB_MAP[currentModal];
-  const beforeIds=cfg?new Set(cfg.arr().map(x=>String(x.id))):new Set();
-  const ok=FORMS[currentModal].save();
-  if(ok===false)return;
-  closeModal();
-  if(cfg){
-    const arr=cfg.arr();
-    const created=arr.find(x=>!beforeIds.has(String(x.id)));
-    if(created){
-      const {data,error}=await supabaseClient.from(cfg.table).insert([toDbPayload(currentModal,created)]).select().single();
-      if(error){console.error(error);notify('Guardado local, pero falló Supabase');renderPage(currentPage);return;}
-      const normalized=normalizeRows(cfg.table,[data])[0];
-      const idx=arr.findIndex(x=>String(x.id)===String(created.id));
-      if(idx>=0){arr[idx]=normalized;cfg.set(arr);}
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      await loadUserProfile(session.user);
+      showApp();
+    } else if (event === 'SIGNED_OUT') {
+      hide('app'); show('auth-screen');
     }
-  }
-  notify('Guardado correctamente');
-  renderPage(currentPage);
+  });
 }
 
-// ─── INIT ─────────────────────────────────────────────────────
-loadSupabaseData();
+async function loadUserProfile(user) {
+  currentUser = user;
+  const { data } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  currentProfile = data || { email: user.email, full_name: user.email.split('@')[0], role: 'viewer' };
 
+  // Update sidebar
+  const name = currentProfile.full_name || currentProfile.email;
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  el('sidebar-avatar').textContent = initials;
+  el('sidebar-name').textContent = name;
+  el('sidebar-role').textContent = currentProfile.role;
+
+  // Hide admin nav for non-admins
+  if (currentProfile.role !== 'admin') {
+    el('admin-section').style.display = 'none';
+  }
+}
+
+function showApp() {
+  hide('auth-screen');
+  show('app');
+  loadDashboard();
+  loadPipeline();
+  if (currentProfile?.role === 'admin') loadUsers();
+}
+
+// ── AUTH FUNCTIONS ─────────────────────────────────────────
+async function doLogin() {
+  const email = el('login-email').value.trim();
+  const pass = el('login-password').value;
+  hideMsg('login-error'); hideMsg('login-success');
+
+  if (!email || !pass) return showMsg('login-error', 'Completa todos los campos.');
+
+  const btn = el('login-btn');
+  btn.disabled = true; btn.textContent = 'Verificando...';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Entrar al portal';
+
+  if (error) showMsg('login-error', errorMsg(error.message));
+}
+
+async function doReset() {
+  const email = el('reset-email').value.trim();
+  hideMsg('reset-error'); hideMsg('reset-success');
+  if (!email) return showMsg('reset-error', 'Ingresa tu correo.');
+
+  const btn = el('reset-btn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href
+  });
+  btn.disabled = false; btn.textContent = 'Enviar enlace de recuperación';
+
+  if (error) showMsg('reset-error', errorMsg(error.message));
+  else showMsg('reset-success', 'Revisa tu correo. Si tienes cuenta, recibirás el enlace en minutos.');
+}
+
+async function doLogout(e) {
+  e.stopPropagation();
+  await sb.auth.signOut();
+  toast('Sesión cerrada');
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────
+async function loadDashboard() {
+  const { data: metrics } = await sb.from('monthly_metrics').select('*').order('month', { ascending: true });
+  const { data: leads } = await sb.from('leads').select('stage, deal_value, solution').not('stage', 'in', '("cerrado_perdido")');
+
+  renderMetrics(metrics, leads);
+  renderCharts(metrics, leads);
+}
+
+function renderMetrics(metrics, leads) {
+  const latest = metrics?.[metrics.length - 1] || {};
+  const prev = metrics?.[metrics.length - 2] || {};
+  const pipeline = leads?.reduce((s, l) => s + (l.deal_value || 0), 0) || 0;
+  const active = leads?.filter(l => !['cerrado_ganado','cerrado_perdido'].includes(l.stage)).length || 0;
+
+  const pct = (a, b) => b ? Math.round((a - b) / b * 100) : 0;
+
+  const cards = [
+    { label: 'Pipeline total', value: '$' + fmt(pipeline), icon: 'M2 14l4-8 3 4 2-6 3 8', color: '#EEF2FF', iconColor: '#1A56FF', change: null },
+    { label: 'Leads este mes', value: latest.leads_generated || 0, icon: 'M8 1C4.69 1 2 3.69 2 7c0 2.3 1.23 4.3 3.07 5.43L8 15l2.93-2.57C12.77 11.3 14 9.3 14 7c0-3.31-2.69-6-6-6z', color: '#E6F7F2', iconColor: '#0A9E6E', change: pct(latest.leads_generated, prev.leads_generated) },
+    { label: 'Oportunidades activas', value: active, icon: 'M2 8a6 6 0 1112 0A6 6 0 012 8zm6-4v4l3 3', color: '#FEF3C7', iconColor: '#D97706', change: null },
+    { label: 'Revenue cerrado', value: '$' + fmt(latest.revenue_closed || 0), icon: 'M1 5h14M1 9h9', color: '#F3EFFE', iconColor: '#7C3AED', change: pct(latest.revenue_closed, prev.revenue_closed) }
+  ];
+
+  el('metrics-grid').innerHTML = cards.map(c => `
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-icon" style="background:${c.color}">
+          <svg viewBox="0 0 16 16" fill="none" style="stroke:${c.iconColor}">
+            <path d="${c.icon}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        ${c.change !== null ? `<span class="metric-badge ${c.change >= 0 ? 'up' : 'down'}">${c.change >= 0 ? '↑' : '↓'} ${Math.abs(c.change)}%</span>` : ''}
+      </div>
+      <div class="metric-value">${c.value}</div>
+      <div class="metric-label">${c.label}</div>
+    </div>
+  `).join('');
+}
+
+function renderCharts(metrics, leads) {
+  if (!metrics?.length) return;
+  const labels = metrics.map(m => new Date(m.month).toLocaleString('es', { month: 'short', year: '2-digit' }));
+
+  if (chartPipeline) chartPipeline.destroy();
+  chartPipeline = new Chart(el('chart-pipeline'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Leads', data: metrics.map(m => m.leads_generated), backgroundColor: 'rgba(26,86,255,.15)', borderColor: 'rgba(26,86,255,.6)', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'MQLs', data: metrics.map(m => m.mqls), backgroundColor: 'rgba(10,158,110,.15)', borderColor: 'rgba(10,158,110,.6)', borderWidth: 1.5, borderRadius: 4 },
+        { label: 'SQLs', data: metrics.map(m => m.sqls), backgroundColor: 'rgba(124,58,237,.15)', borderColor: 'rgba(124,58,237,.6)', borderWidth: 1.5, borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12, font: { size: 11, family: 'DM Sans' } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 } } } } }
+  });
+
+  const solutionCounts = {};
+  leads?.forEach(l => { if (l.solution) solutionCounts[l.solution] = (solutionCounts[l.solution] || 0) + 1; });
+  const solLabels = Object.keys(solutionCounts);
+  const solData = Object.values(solutionCounts);
+
+  if (chartSolutions) chartSolutions.destroy();
+  chartSolutions = new Chart(el('chart-solutions'), {
+    type: 'doughnut',
+    data: {
+      labels: solLabels,
+      datasets: [{ data: solData, backgroundColor: ['rgba(26,86,255,.75)', 'rgba(10,158,110,.75)', 'rgba(217,119,6,.75)', 'rgba(124,58,237,.75)'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 10, font: { size: 11, family: 'DM Sans' } } } } }
+  });
+
+  const latest = metrics[metrics.length - 1];
+  if (chartFunnel) chartFunnel.destroy();
+  chartFunnel = new Chart(el('chart-funnel'), {
+    type: 'bar',
+    data: {
+      labels: ['Leads', 'MQLs', 'SQLs', 'Propuestas', 'Cierres'],
+      datasets: [{ data: [latest.leads_generated, latest.mqls, latest.sqls, latest.proposals_sent, latest.deals_closed], backgroundColor: ['rgba(26,86,255,.7)', 'rgba(26,86,255,.55)', 'rgba(26,86,255,.4)', 'rgba(26,86,255,.28)', 'rgba(26,86,255,.18)'], borderRadius: 6, borderSkipped: false }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 } } }, y: { grid: { display: false }, ticks: { font: { size: 12, weight: 500 } } } } }
+  });
+}
+
+// ── PIPELINE ───────────────────────────────────────────────
+async function loadPipeline() {
+  const { data } = await sb.from('leads').select('*, profiles(full_name)').order('created_at', { ascending: false });
+  allLeads = data || [];
+  renderPipeline(allLeads);
+}
+
+function renderPipeline(leads) {
+  if (!leads.length) {
+    el('pipeline-tbody').innerHTML = '<tr><td colspan="8" class="empty-state"><p>No hay leads en el pipeline. ¡Crea el primero!</p></td></tr>';
+    return;
+  }
+  el('pipeline-tbody').innerHTML = leads.map(l => `
+    <tr>
+      <td class="company-cell">${l.company_name}<span>${l.contact_name}</span></td>
+      <td>${l.cargo || '—'}</td>
+      <td>${l.solution || '—'}</td>
+      <td>${stageBadge(l.stage)}</td>
+      <td class="value-cell">${l.deal_value ? '$' + fmt(l.deal_value) : '—'}</td>
+      <td>
+        <div>${l.probability || 0}%</div>
+        <div class="prob-bar"><div class="prob-fill" style="width:${l.probability || 0}%"></div></div>
+      </td>
+      <td>${l.source || '—'}</td>
+      <td>
+        <button class="btn-outline" style="font-size:11px;padding:5px 10px" onclick="editLead('${l.id}')">Ver</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterPipeline(stage, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = stage === 'all' ? allLeads : allLeads.filter(l => l.stage === stage);
+  renderPipeline(filtered);
+}
+
+// ── USERS ──────────────────────────────────────────────────
+async function loadUsers() {
+  const { data } = await sb.from('profiles').select('*').order('created_at');
+  if (!data?.length) return;
+
+  const colors = ['#1A56FF', '#0A9E6E', '#7C3AED', '#D97706', '#DC2626'];
+  el('users-grid').innerHTML = data.map((u, i) => `
+    <div class="user-card">
+      <div class="user-card-header">
+        <div class="user-card-avatar" style="background:${colors[i % colors.length]}">${(u.avatar_initials || u.full_name?.[0] || u.email[0]).toUpperCase()}</div>
+        <div>
+          <div class="user-card-name">${u.full_name || u.email.split('@')[0]}</div>
+          <div class="user-card-email">${u.email}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span class="role-badge role-${u.role}">${u.role}</span>
+        <span style="font-size:12px;color:var(--ink3)">
+          <span class="status-dot ${u.is_active ? 'status-active' : 'status-inactive'}"></span>
+          ${u.is_active ? 'Activo' : 'Inactivo'}
+        </span>
+      </div>
+      ${u.department ? `<div style="font-size:12px;color:var(--ink3)">${u.department}</div>` : ''}
+      ${currentProfile?.role === 'admin' && u.id !== currentUser?.id ? `
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button class="btn-outline" style="font-size:11px;padding:5px 10px;flex:1" onclick="changeRole('${u.id}', '${u.role}')">Cambiar rol</button>
+          <button class="btn-outline" style="font-size:11px;padding:5px 10px;color:var(--danger);border-color:rgba(220,38,38,.3)" onclick="toggleUserActive('${u.id}', ${u.is_active})">
+            ${u.is_active ? 'Desactivar' : 'Activar'}
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+}
+
+async function inviteUser() {
+  const email = el('u-email').value.trim();
+  const name = el('u-name').value.trim();
+  const role = el('u-role').value;
+  const dept = el('u-dept').value.trim();
+
+  if (!email) return toast('Ingresa un correo válido', 'error');
+
+  // Enviar invitación por email — el usuario crea su propia contraseña
+  const { data, error } = await sb.auth.admin?.inviteUserByEmail?.(email, {
+    data: { full_name: name, role, department: dept }
+  });
+
+  if (error) {
+    toast('Error al invitar: ' + errorMsg(error.message), 'error');
+  } else {
+    closeModal('modal-user');
+    toast('Invitación enviada a ' + email, 'success');
+    loadUsers();
+  }
+}
+
+async function changeRole(userId, currentRole) {
+  const roles = ['viewer', 'manager', 'admin'];
+  const next = roles[(roles.indexOf(currentRole) + 1) % roles.length];
+  const { error } = await sb.from('profiles').update({ role: next }).eq('id', userId);
+  if (!error) { toast('Rol actualizado a ' + next, 'success'); loadUsers(); }
+}
+
+async function toggleUserActive(userId, isActive) {
+  const { error } = await sb.from('profiles').update({ is_active: !isActive }).eq('id', userId);
+  if (!error) { toast(isActive ? 'Usuario desactivado' : 'Usuario activado'); loadUsers(); }
+}
+
+// ── LEADS CRUD ─────────────────────────────────────────────
+async function saveLead() {
+  const company = el('f-company').value.trim();
+  const contact = el('f-contact').value.trim();
+  if (!company || !contact) return toast('Empresa y contacto son obligatorios', 'error');
+
+  const { error } = await sb.from('leads').insert({
+    company_name: company,
+    contact_name: contact,
+    contact_email: el('f-email').value.trim(),
+    contact_phone: el('f-phone').value.trim(),
+    cargo: el('f-cargo').value || null,
+    solution: el('f-solution').value || null,
+    deal_value: parseFloat(el('f-value').value) || null,
+    source: el('f-source').value || null,
+    industry: el('f-industry').value.trim() || null,
+    notes: el('f-notes').value.trim() || null,
+    assigned_to: currentUser?.id
+  });
+
+  if (error) { toast('Error al guardar: ' + error.message, 'error'); return; }
+  closeModal('modal-lead');
+  toast('Lead creado exitosamente', 'success');
+  loadPipeline(); loadDashboard();
+  ['f-company','f-contact','f-email','f-phone','f-notes','f-value','f-industry'].forEach(id => el(id).value = '');
+  ['f-cargo','f-solution','f-source'].forEach(id => el(id).selectedIndex = 0);
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────
+function showPage(id, navEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el('page-' + id)?.classList.add('active');
+  if (navEl) navEl.classList.add('active');
+
+  const titles = { dashboard: 'Dashboard ejecutivo', pipeline: 'Pipeline CRM', estrategia: 'Estrategia B2B', users: 'Gestión de usuarios' };
+  el('page-title').textContent = titles[id] || id;
+}
+
+// ── AUTH TABS ──────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'reset')));
+  el('form-login').style.display = tab === 'login' ? 'block' : 'none';
+  el('form-reset').style.display = tab === 'reset' ? 'block' : 'none';
+}
+
+// ── MODALS ─────────────────────────────────────────────────
+function openLeadModal() { el('modal-lead').classList.add('open'); }
+function openUserModal() { el('modal-user').classList.add('open'); }
+function closeModal(id) { el(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-backdrop')) e.target.classList.remove('open');
+});
+
+// ── HELPERS ───────────────────────────────────────────────
+function el(id) { return document.getElementById(id); }
+function show(id) { const e = el(id); if (e) e.style.display = 'flex'; }
+function hide(id) { const e = el(id); if (e) e.style.display = 'none'; }
+function showMsg(id, msg) { const e = el(id); e.textContent = msg; e.style.display = 'block'; }
+function hideMsg(id) { el(id).style.display = 'none'; }
+function fmt(n) { return Number(n).toLocaleString('es'); }
+function editLead(id) { toast('Vista de detalle — próximamente'); }
+
+function toast(msg, type = '') {
+  const t = el('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => { t.className = 'toast'; }, 3200);
+}
+
+function stageBadge(stage) {
+  const map = {
+    lead: ['#EEF2FF','#1A56FF','Lead'],
+    contactado: ['#E6F7F2','#0A9E6E','Contactado'],
+    discovery: ['#FEF3C7','#D97706','Discovery'],
+    diagnostico: ['#FEF3C7','#D97706','Diagnóstico'],
+    propuesta: ['#F3EFFE','#7C3AED','Propuesta'],
+    negociacion: ['#FEE2E2','#DC2626','Negociación'],
+    cerrado_ganado: ['#E6F7F2','#0A9E6E','Cerrado ✓'],
+    cerrado_perdido: ['#F1EEE8','#888','Perdido']
+  };
+  const [bg, color, label] = map[stage] || ['#F1EEE8','#888',stage];
+  return `<span class="stage-badge" style="background:${bg};color:${color}"><span class="stage-dot" style="background:${color}"></span>${label}</span>`;
+}
+
+function errorMsg(msg) {
+  const map = {
+    'Invalid login credentials': 'Correo o contraseña incorrectos.',
+    'Email not confirmed': 'Confirma tu correo antes de ingresar.',
+    'User not found': 'No existe una cuenta con ese correo.',
+    'Too many requests': 'Demasiados intentos. Espera unos minutos.'
+  };
+  return map[msg] || msg;
+}
+
+// ── START ──────────────────────────────────────────────────
+init();
 </script>
 </body>
 </html>
