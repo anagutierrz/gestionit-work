@@ -379,7 +379,8 @@ const LEAD_COLORS = {nuevo:'blue',calificado_mkt:'purple',enviado_ventas:'amber'
 const CONTENT_ESTADOS = {idea:'Idea',redaccion:'Redacción',diseño:'Diseño',filmacion:'Filmación',edicion:'Edición',revision:'Revisión',aprobado:'Aprobado',programado:'Programado',publicado:'Publicado'};
 const TAREA_ESTADOS = {pendiente:'Pendiente',en_proceso:'En proceso',en_revision:'En revisión',completada:'Completada',vencida:'Vencida'};
 const PRIORIDAD_COLORS = {baja:'gray',media:'blue',alta:'amber',urgente:'red'};
-const ROL_COLORS = {admin:'#5856D6',estratega:'#007AFF',copywriter:'#FF9500',diseñador:'#FF2D55',filmmaker:'#5AC8FA',publicador:'#34C759',analista:'#FF6B35',viewer:'#8E8E93'};
+const ROLES = {admin:'Admin',diseñador:'Diseñador',community:'Community',head:'Head'};
+const ROL_COLORS = {admin:'#5856D6',diseñador:'#FF2D55',community:'#34C759',head:'#FF9500'};
 
 function badgeHtml(text, color){ return `<span class="badge badge-${color||'gray'}">${text}</span>`; }
 function initials(name){ if(!name) return '??'; return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
@@ -447,7 +448,7 @@ async function loadAllData(){
   try {
     const [leads,tareas,contenido,campanas,eventos,emails,blogs,usuarios] = await Promise.all([
       sb.from('leads').select('*,profiles!leads_assigned_to_fkey(full_name)').order('created_at',{ascending:false}),
-      sb.from('tareas').select('*,profiles!tareas_asignado_a_fkey(full_name),profiles!tareas_creado_por_fkey(full_name)').order('created_at',{ascending:false}),
+      sb.from('tareas').select('*').order('created_at',{ascending:false}),
       sb.from('contenido').select('*').order('created_at',{ascending:false}),
       sb.from('campanas').select('*').order('created_at',{ascending:false}),
       sb.from('eventos').select('*').order('fecha',{ascending:false}),
@@ -513,6 +514,10 @@ function renderDashboard(){
   const completadas=tareas.filter(t=>t.estado==='completada').length;
   const total=tareas.length; const pct=total?Math.round(completadas/total*100):0;
   const campActivas=campanas.filter(c=>c.estado==='activa').length;
+  const totalLeadsCamp=campanas.reduce((s,c)=>s+(c.leads_generados||0),0);
+  const totalInversionCamp=campanas.reduce((s,c)=>s+(parseFloat(c.inversion_real)||0),0);
+  const totalLeadsEmail=allData.emails.reduce((s,e)=>s+(e.leads_generados||0),0);
+  const totalLeadsBlog=allData.blogs.reduce((s,b)=>s+(b.leads_generados||0),0);
 
   const stageData=[
     {label:'Nuevo',key:'nuevo'},
@@ -536,6 +541,12 @@ function renderDashboard(){
   <div class="kpi-card"><div class="kpi-label">Convertidos</div><div class="kpi-val" style="color:var(--green)">${convertidos}</div></div>
   <div class="kpi-card"><div class="kpi-label">% Tareas completadas</div><div class="kpi-val">${pct}%</div><div class="progress-bar" style="margin-top:8px"><div class="progress-fill" style="width:${pct}%"></div></div></div>
   <div class="kpi-card"><div class="kpi-label">Pendientes de aprobación</div><div class="kpi-val" style="color:var(--amber)">${allData.contenido.filter(c=>c.estado_aprobacion==='pendiente').length}</div></div>
+</div>
+<div class="kpi-grid">
+  <div class="kpi-card"><div class="kpi-label">Leads de campañas</div><div class="kpi-val">${totalLeadsCamp}</div><div class="kpi-sub">Inversión: ${fmtCurrency(totalInversionCamp)}</div></div>
+  <div class="kpi-card"><div class="kpi-label">Leads de email</div><div class="kpi-val">${totalLeadsEmail}</div></div>
+  <div class="kpi-card"><div class="kpi-label">Leads de blog</div><div class="kpi-val">${totalLeadsBlog}</div></div>
+  <div class="kpi-card"><div class="kpi-label">Leads totales</div><div class="kpi-val" style="color:var(--accent)">${totalLeadsCamp+totalLeadsEmail+totalLeadsBlog}</div></div>
 </div>
 <div class="two-col">
   <div class="card">
@@ -711,7 +722,7 @@ ${cols.map(col=>{
         ${t.categoria?`<span style="font-size:10px;color:var(--text3)">${t.categoria}</span>`:''}
       </div>
       <div class="k-meta" style="margin-top:4px">
-        ${t.profiles?.full_name?avHtml(t.profiles.full_name):''}
+        ${t.asignado_a?avHtml((allData.usuarios.find(u=>u.id===t.asignado_a)?.full_name)||'?'):''}
         ${t.fecha_limite?`<span style="font-size:10px;color:${new Date(t.fecha_limite)<new Date()?'var(--red)':'var(--text3)'}">${fmtDate(t.fecha_limite)}</span>`:''}
       </div>
     </div>`).join('')||`<div style="text-align:center;padding:20px;color:var(--text3);font-size:11px">Sin tareas</div>`}
@@ -729,7 +740,7 @@ function openTareaDetail(id){
   <div class="detail-row"><span class="detail-key">Estado</span><span class="detail-val">${badgeHtml(TAREA_ESTADOS[t.estado]||t.estado,'blue')}</span></div>
   <div class="detail-row"><span class="detail-key">Prioridad</span><span class="detail-val">${badgeHtml(t.prioridad,PRIORIDAD_COLORS[t.prioridad])}</span></div>
   <div class="detail-row"><span class="detail-key">Categoría</span><span class="detail-val">${t.categoria||'—'}</span></div>
-  <div class="detail-row"><span class="detail-key">Asignado a</span><span class="detail-val">${t.profiles?.full_name||'—'}</span></div>
+  <div class="detail-row"><span class="detail-key">Asignado a</span><span class="detail-val">${(allData.usuarios.find(u=>u.id===t.asignado_a)?.full_name)||'—'}</span></div>
   <div class="detail-row"><span class="detail-key">Fecha límite</span><span class="detail-val">${fmtDate(t.fecha_limite)}</span></div>
   ${t.descripcion?`<div class="detail-row"><span class="detail-key">Descripción</span><span class="detail-val">${t.descripcion}</span></div>`:''}
 </div>
@@ -834,6 +845,8 @@ function openContenidoDetail(id){
   <div class="detail-row"><span class="detail-key">Publicación</span><span class="detail-val">${fmtDate(c.fecha_publicacion)}</span></div>
   <div class="detail-row"><span class="detail-key">Estado</span><span class="detail-val">${badgeHtml(CONTENT_ESTADOS[c.estado]||c.estado,'blue')}</span></div>
   <div class="detail-row"><span class="detail-key">Aprobación</span><span class="detail-val">${badgeHtml(c.estado_aprobacion,c.estado_aprobacion==='aprobado'?'green':c.estado_aprobacion==='rechazado'?'red':'amber')}</span></div>
+  <div class="detail-row"><span class="detail-key">Aprobador asignado</span><span class="detail-val">${(allData.usuarios.find(u=>u.id===c.aprobador_id)?.full_name)||'Sin asignar'}</span></div>
+  ${c.comentario_aprobacion?`<div class="detail-row"><span class="detail-key">Comentario</span><span class="detail-val" style="color:var(--red)">${c.comentario_aprobacion}</span></div>`:''}
 </div>
 ${c.caption||c.hashtags?`<div class="detail-section">
   <div class="detail-section-title">Copy</div>
@@ -864,12 +877,13 @@ ${c.guion?`<div class="detail-section">
 }
 
 async function aprobarContenido(id){
-  const { error } = await sb.from('contenido').update({estado_aprobacion:'aprobado',aprobado_at:new Date().toISOString(),aprobador_id:currentUser.id}).eq('id',id);
-  if(!error){ toast('✓ Contenido aprobado'); await loadAllData(); renderContenido(); }
+  const {error}=await sb.from('contenido').update({estado_aprobacion:'aprobado',estado:'aprobado',aprobado_at:new Date().toISOString(),aprobador_id:currentUser.id}).eq('id',id);
+  if(!error){toast('✓ Contenido aprobado');await logHistorial('aprobó contenido','contenido',id,'','pendiente','aprobado');await loadAllData();renderContenido();}
 }
 async function rechazarContenido(id){
-  const { error } = await sb.from('contenido').update({estado_aprobacion:'rechazado'}).eq('id',id);
-  if(!error){ toast('Contenido rechazado'); await loadAllData(); renderContenido(); }
+  const motivo=prompt('Motivo del rechazo (opcional):');
+  const {error}=await sb.from('contenido').update({estado_aprobacion:'rechazado',comentario_aprobacion:motivo||'',aprobador_id:currentUser.id}).eq('id',id);
+  if(!error){toast('Contenido rechazado');await loadAllData();renderContenido();}
 }
 async function changeContenidoEstado(id, estado){
   const { error } = await sb.from('contenido').update({estado,updated_at:new Date().toISOString()}).eq('id',id);
@@ -888,6 +902,7 @@ function openModalContenido(){
   <div class="form-row"><label class="form-label">Campaña</label><select class="form-select" id="mc-camp"><option value="">—</option>${campanas.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('')}</select></div>
   <div class="form-row"><label class="form-label">Resp. copy</label><select class="form-select" id="mc-copy"><option value="">—</option>${usuarios.map(u=>`<option value="${u.id}">${u.full_name}</option>`).join('')}</select></div>
   <div class="form-row"><label class="form-label">Resp. diseño</label><select class="form-select" id="mc-diseño"><option value="">—</option>${usuarios.map(u=>`<option value="${u.id}">${u.full_name}</option>`).join('')}</select></div>
+  <div class="form-row"><label class="form-label">Aprobador (Head)</label><select class="form-select" id="mc-aprobador"><option value="">— Seleccionar —</option>${usuarios.filter(u=>u.role==='head'||u.role==='admin').map(u=>`<option value="${u.id}">${u.full_name} (${u.role})</option>`).join('')||usuarios.map(u=>`<option value="${u.id}">${u.full_name}</option>`).join('')}</select></div>
 </div>
 <div class="form-row"><label class="form-label">Objetivo</label><input class="form-input" id="mc-obj" placeholder="Objetivo del contenido"></div>
 <div class="form-row"><label class="form-label">Caption</label><textarea class="form-textarea" id="mc-caption" placeholder="Texto para publicar..."></textarea></div>
@@ -897,7 +912,7 @@ function openModalContenido(){
 
 async function saveContenido(){
   const titulo=$('mc-titulo').value.trim(); if(!titulo){ toast('El título es requerido'); return; }
-  const obj={titulo,canal:$('mc-canal').value,formato:$('mc-formato').value,fecha_publicacion:$('mc-fecha').value||null,campaña_id:$('mc-camp').value||null,responsable_copy:$('mc-copy').value||null,responsable_diseño:$('mc-diseño').value||null,objetivo:$('mc-obj').value,caption:$('mc-caption').value,hashtags:$('mc-hash').value,estado:'idea',estado_aprobacion:'pendiente',created_by:currentUser.id};
+  const obj={titulo,canal:$('mc-canal').value,formato:$('mc-formato').value,fecha_publicacion:$('mc-fecha').value||null,campaña_id:$('mc-camp').value||null,responsable_copy:$('mc-copy').value||null,responsable_diseño:$('mc-diseño').value||null,aprobador_id:$('mc-aprobador').value||null,objetivo:$('mc-obj').value,caption:$('mc-caption').value,hashtags:$('mc-hash').value,estado:'idea',estado_aprobacion:'pendiente',created_by:currentUser.id};
   const { error } = await sb.from('contenido').insert(obj);
   if(!error){ await logHistorial('creó contenido','contenido',null,titulo,'',''); toast('Contenido creado'); closeModal(); await loadAllData(); renderContenido(); }
   else toast('Error: '+error.message);
@@ -917,6 +932,11 @@ function renderCalendario(){
   let html=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
     <button class="btn btn-ghost" onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendario()">‹</button>
     <span style="font-size:15px;font-weight:600;flex:1">${monthNames[calMonth]} ${calYear}</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(88,86,214,.12);color:var(--accent)">Contenido</span>
+      <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(0,122,255,.12);color:var(--blue)">Blog</span>
+      <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,45,85,.12);color:var(--pink)">Email</span>
+    </div>
     <button class="btn btn-ghost" onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendario()">›</button>
     <button class="btn btn-ghost btn-sm" onclick="calYear=new Date().getFullYear();calMonth=new Date().getMonth();renderCalendario()">Hoy</button>
   </div>
@@ -928,9 +948,13 @@ function renderCalendario(){
     const isToday=d===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear();
     const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const events=allData.contenido.filter(c=>c.fecha_publicacion&&c.fecha_publicacion.startsWith(dateStr));
+    const blogEvents=allData.blogs.filter(b=>b.fecha_publicacion&&b.fecha_publicacion.startsWith(dateStr));
+    const emailEvents=allData.emails.filter(e=>e.fecha_envio&&e.fecha_envio.startsWith(dateStr));
     html+=`<div class="cal-cell${isToday?' today':''}">
       <div class="cal-day-num">${d}</div>
-      ${events.map(e=>`<div class="cal-event" style="background:${e.estado==='publicado'?'rgba(52,199,89,.15)':e.estado==='aprobado'?'rgba(88,86,214,.15)':'rgba(255,149,0,.15)'}; color:${e.estado==='publicado'?'var(--green)':e.estado==='aprobado'?'var(--accent)':'var(--amber)'}">${e.titulo}</div>`).join('')}
+      ${events.map(e=>`<div class="cal-event" style="background:${e.estado==='publicado'?'rgba(52,199,89,.15)':e.estado==='aprobado'?'rgba(88,86,214,.15)':'rgba(255,149,0,.15)'}; color:${e.estado==='publicado'?'var(--green)':e.estado==='aprobado'?'var(--accent)':'var(--amber)'}" title="Contenido">${e.titulo}</div>`).join('')}
+      ${blogEvents.map(b=>`<div class="cal-event" style="background:rgba(0,122,255,.12);color:var(--blue)" title="Blog">📝 ${b.titulo}</div>`).join('')}
+      ${emailEvents.map(e=>`<div class="cal-event" style="background:rgba(255,45,85,.12);color:var(--pink)" title="Email">✉ ${e.nombre}</div>`).join('')}
     </div>`;
   }
   const remaining=(7-((lastDay.getDay()||7))%7)%7;
@@ -992,6 +1016,21 @@ function openEmailDetail(id){
   </div>
 </div>
 <div class="detail-section">
+  <div class="detail-section-title">Registrar métricas de envío</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div><label class="form-label" style="font-size:10px">Total enviados</label><input class="form-input" id="em-env" type="number" value="${e.total_enviados||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Open rate (%)</label><input class="form-input" id="em-open" type="number" step="0.1" value="${e.open_rate||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Click rate (%)</label><input class="form-input" id="em-click" type="number" step="0.1" value="${e.click_rate||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Rebotes</label><input class="form-input" id="em-reb" type="number" value="${e.rebotes||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Respuestas</label><input class="form-input" id="em-resp" type="number" value="${e.respuestas||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Leads generados</label><input class="form-input" id="em-leads" type="number" value="${e.leads_generados||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Leads a ventas</label><input class="form-input" id="em-ventas" type="number" value="${e.leads_ventas||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Conversiones</label><input class="form-input" id="em-conv" type="number" value="${e.conversiones||0}"></div>
+  </div>
+  <div style="margin-top:8px"><label class="form-label" style="font-size:10px">Notas del resultado</label><textarea class="form-textarea" id="em-notas" placeholder="Observaciones del envío...">${e.notas_resultado||''}</textarea></div>
+  <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="saveEmailMetrics('${e.id}')">Guardar métricas</button>
+</div>
+<div class="detail-section">
   <div class="detail-section-title">Aprobación</div>
   <div style="display:flex;gap:8px">
     <button class="btn btn-success" onclick="aprobarEmail('${e.id}')">✓ Aprobar</button>
@@ -1005,6 +1044,13 @@ ${e.html_content?`<div class="detail-section">
   </div>
 </div>`:''}`;
   openDetail();
+}
+
+async function saveEmailMetrics(id){
+  const obj={total_enviados:parseInt($('em-env').value)||0,open_rate:parseFloat($('em-open').value)||0,click_rate:parseFloat($('em-click').value)||0,rebotes:parseInt($('em-reb').value)||0,respuestas:parseInt($('em-resp').value)||0,leads_generados:parseInt($('em-leads').value)||0,leads_ventas:parseInt($('em-ventas').value)||0,conversiones:parseInt($('em-conv').value)||0,notas_resultado:$('em-notas').value,estado:'enviado'};
+  const {error}=await sb.from('email_campaigns').update(obj).eq('id',id);
+  if(!error){toast('Métricas guardadas');await logHistorial('actualizó métricas','email_campaigns',id,'','','');await loadAllData();renderEmail();}
+  else toast('Error: '+error.message);
 }
 
 async function aprobarEmail(id){
@@ -1089,16 +1135,37 @@ function openBlogDetail(id){
   </div>
 </div>
 <div class="detail-section">
+  <div class="detail-section-title">Registrar métricas (post publicación)</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div><label class="form-label" style="font-size:10px">Tráfico orgánico</label><input class="form-input" id="bm-trafico" type="number" value="${b.trafico_organico||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Posición media</label><input class="form-input" id="bm-pos" type="number" step="0.1" value="${b.posicion_media||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Leads generados</label><input class="form-input" id="bm-leads" type="number" value="${b.leads_generados||0}"></div>
+  </div>
+  <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="saveBlogMetrics('${b.id}')">Guardar métricas</button>
+</div>
+<div class="detail-section">
   <div class="detail-section-title">Aprobación</div>
-  <div style="display:flex;gap:8px">
+  <div style="display:flex;gap:8px;margin-bottom:10px">
     <button class="btn btn-success" onclick="aprobarBlog('${b.id}')">✓ Aprobar</button>
     <button class="btn btn-danger" onclick="rechazarBlog('${b.id}')">✗ Rechazar</button>
   </div>
-  <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
     ${Object.entries(BLOG_ESTADOS).map(([k,v])=>`<button class="btn btn-sm btn-ghost" onclick="changeBlogEstado('${b.id}','${k}')">${v}</button>`).join('')}
   </div>
-</div>`;
+</div>
+${b.html_content?`<div class="detail-section">
+  <div class="detail-section-title">Preview HTML del blog</div>
+  <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:300px;overflow-y:auto">
+    <iframe srcdoc="${(b.html_content||'').replace(/"/g,'&quot;')}" style="width:100%;min-height:300px;border:none"></iframe>
+  </div>
+</div>`:''}`;
   openDetail();
+}
+
+async function saveBlogMetrics(id){
+  const obj={trafico_organico:parseInt($('bm-trafico').value)||0,posicion_media:parseFloat($('bm-pos').value)||null,leads_generados:parseInt($('bm-leads').value)||0};
+  const {error}=await sb.from('blog_posts').update(obj).eq('id',id);
+  if(!error){toast('Métricas guardadas');await loadAllData();renderSEO();openBlogDetail(id);}
 }
 
 async function aprobarBlog(id){ const {error}=await sb.from('blog_posts').update({estado_aprobacion:'aprobado',aprobado_at:new Date().toISOString()}).eq('id',id); if(!error){toast('Artículo aprobado');await loadAllData();renderSEO();openBlogDetail(id);} }
@@ -1117,13 +1184,15 @@ function openModalBlog(){
 </div>
 <div class="form-row"><label class="form-label">Meta descripción</label><textarea class="form-textarea" id="mb-md" placeholder="Meta descripción (160 car. max)"></textarea></div>
 <div class="form-row"><label class="form-label">Keywords secundarias</label><input class="form-input" id="mb-kws" placeholder="Separadas por comas"></div>
-<div class="form-row"><label class="form-label">CTA del artículo</label><input class="form-input" id="mb-cta" placeholder="Ej: Solicita una demo gratuita"></div>`;
+<div class="form-row"><label class="form-label">CTA del artículo</label><input class="form-input" id="mb-cta" placeholder="Ej: Solicita una demo gratuita"></div>
+<div class="form-row"><label class="form-label">Comentarios / notas</label><textarea class="form-textarea" id="mb-com" placeholder="Notas internas del equipo..."></textarea></div>
+<div class="form-row"><label class="form-label">HTML del artículo (para preview)</label><textarea class="form-textarea" id="mb-html" placeholder="&lt;html&gt;...&lt;/html&gt;" style="min-height:80px;font-family:var(--mono);font-size:11px"></textarea></div>`;
   openModal(saveBlog);
 }
 
 async function saveBlog(){
   const titulo=$('mb-titulo').value.trim(); if(!titulo){toast('El título es requerido');return;}
-  const obj={titulo,keyword_principal:$('mb-kw').value,url_sugerida:$('mb-url').value,meta_titulo:$('mb-mt').value,meta_descripcion:$('mb-md').value,keywords_secundarias:$('mb-kws').value,cta_articulo:$('mb-cta').value,fecha_publicacion:$('mb-fecha').value||null,estado:'idea',estado_aprobacion:'pendiente',autor_id:currentUser.id,created_by:currentUser.id};
+  const obj={titulo,keyword_principal:$('mb-kw').value,url_sugerida:$('mb-url').value,meta_titulo:$('mb-mt').value,meta_descripcion:$('mb-md').value,keywords_secundarias:$('mb-kws').value,cta_articulo:$('mb-cta').value,comentarios:$('mb-com').value,html_content:$('mb-html').value,fecha_publicacion:$('mb-fecha').value||null,estado:'idea',estado_aprobacion:'pendiente',autor_id:currentUser.id,created_by:currentUser.id};
   const {error}=await sb.from('blog_posts').insert(obj);
   if(!error){toast('Artículo creado');closeModal();await loadAllData();renderSEO();}
   else toast('Error: '+error.message);
@@ -1191,15 +1260,39 @@ function openCampanaDetail(id){
   </div>
 </div>
 <div class="detail-section">
+  <div class="detail-section-title">Registrar métricas de resultados</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div><label class="form-label" style="font-size:10px">Inversión real</label><input class="form-input" id="cm-inv" type="number" value="${c.inversion_real||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Alcance</label><input class="form-input" id="cm-alc" type="number" value="${c.alcance||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Impresiones</label><input class="form-input" id="cm-imp" type="number" value="${c.impresiones||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Clics</label><input class="form-input" id="cm-cl" type="number" value="${c.clics||0}"></div>
+    <div><label class="form-label" style="font-size:10px">CTR (%)</label><input class="form-input" id="cm-ctr" type="number" step="0.01" value="${c.ctr||0}"></div>
+    <div><label class="form-label" style="font-size:10px">CPC</label><input class="form-input" id="cm-cpc" type="number" step="0.01" value="${c.cpc||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Leads generados</label><input class="form-input" id="cm-leads" type="number" value="${c.leads_generados||0}"></div>
+    <div><label class="form-label" style="font-size:10px">CPL</label><input class="form-input" id="cm-cpl" type="number" step="0.01" value="${c.cpl||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Leads calificados</label><input class="form-input" id="cm-lcal" type="number" value="${c.leads_calificados||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Leads a ventas</label><input class="form-input" id="cm-lvent" type="number" value="${c.leads_ventas||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Conversiones</label><input class="form-input" id="cm-conv" type="number" value="${c.conversiones||0}"></div>
+    <div><label class="form-label" style="font-size:10px">Costo/lead ventas</label><input class="form-input" id="cm-clv" type="number" step="0.01" value="${c.costo_lead_ventas||0}"></div>
+  </div>
+  <button class="btn btn-primary btn-sm" style="margin-top:8px;width:100%" onclick="saveCampanaMetrics('${c.id}')">Guardar métricas → Dashboard</button>
+</div>
+<div class="detail-section">
   <div class="detail-section-title">Cambiar estado</div>
   <div style="display:flex;gap:6px">
     ${['activa','pausada','finalizada','cancelada'].map(s=>`<button class="btn btn-sm btn-ghost" onclick="changeCampanaEstado('${c.id}','${s}')">${s.charAt(0).toUpperCase()+s.slice(1)}</button>`).join('')}
   </div>
 </div>`;
+
   openDetail();
 }
 
-async function changeCampanaEstado(id, estado){
+async function saveCampanaMetrics(id){
+  const obj={inversion_real:parseFloat($('cm-inv').value)||0,alcance:parseInt($('cm-alc').value)||0,impresiones:parseInt($('cm-imp').value)||0,clics:parseInt($('cm-cl').value)||0,ctr:parseFloat($('cm-ctr').value)||0,cpc:parseFloat($('cm-cpc').value)||0,leads_generados:parseInt($('cm-leads').value)||0,cpl:parseFloat($('cm-cpl').value)||0,leads_calificados:parseInt($('cm-lcal').value)||0,leads_ventas:parseInt($('cm-lvent').value)||0,conversiones:parseInt($('cm-conv').value)||0,costo_lead_ventas:parseFloat($('cm-clv').value)||0};
+  const {error}=await sb.from('campanas').update(obj).eq('id',id);
+  if(!error){toast('Métricas guardadas y actualizadas en Dashboard');await loadAllData();renderCampanas();openCampanaDetail(id);}
+  else toast('Error: '+error.message);
+}
   const {error}=await sb.from('campanas').update({estado}).eq('id',id);
   if(!error){toast('Estado: '+estado);await loadAllData();renderCampanas();openCampanaDetail(id);}
 }
@@ -1329,11 +1422,16 @@ async function saveEvento(){
 // ═══════════════════════════════════════════════
 function renderUsuarios(){
   const usuarios=allData.usuarios;
-  const roles={admin:'Admin',estratega:'Estratega',copywriter:'Copywriter',diseñador:'Diseñador',filmmaker:'Filmmaker',publicador:'Publicador',analista:'Analista',viewer:'Invitado'};
   $('content-area').innerHTML=`
-<div style="display:flex;justify-content:space-between;margin-bottom:16px">
-  <div style="font-size:13px;color:var(--text3)">${usuarios.length} usuarios activos</div>
-  <button class="btn btn-primary" onclick="openModalAgregarUsuario()">¿Cómo agregar usuario?</button>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+  <div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:3px">Equipo</div>
+    <div style="font-size:12px;color:var(--text3)">${usuarios.length} miembros activos</div>
+  </div>
+  ${currentProfile?.role==='admin'?`<button class="btn btn-primary" onclick="openModalCrearUsuario()">+ Agregar miembro</button>`:''}
+</div>
+<div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+  ${Object.entries(ROLES).map(([k,v])=>`<div class="kpi-card" style="border-left:3px solid ${ROL_COLORS[k]||'#ccc'}"><div class="kpi-label">${v}</div><div class="kpi-val">${usuarios.filter(u=>u.role===k).length}</div></div>`).join('')}
 </div>
 <div class="user-grid">
 ${usuarios.map(u=>{
@@ -1342,10 +1440,12 @@ ${usuarios.map(u=>{
     <div class="user-card-av" style="background:${col}">${u.avatar_initials||initials(u.full_name||u.email)}</div>
     <div class="user-card-name">${u.full_name||'Sin nombre'}</div>
     <div class="user-card-role">${u.email}</div>
-    <div style="margin-bottom:10px">${badgeHtml(roles[u.role]||u.role,'purple')}</div>
-    ${currentProfile?.role==='admin'?`<select class="form-select" style="font-size:11px" onchange="changeUserRole('${u.id}',this.value)">
-      ${Object.entries(roles).map(([k,v])=>`<option value="${k}" ${u.role===k?'selected':''}>${v}</option>`).join('')}
-    </select>`:''}
+    <div style="margin-bottom:10px">${badgeHtml(ROLES[u.role]||u.role,'purple')}</div>
+    ${currentProfile?.role==='admin'?`
+    <select class="form-select" style="font-size:11px;margin-bottom:6px" onchange="changeUserRole('${u.id}',this.value)">
+      ${Object.entries(ROLES).map(([k,v])=>`<option value="${k}" ${u.role===k?'selected':''}>${v}</option>`).join('')}
+    </select>
+    <button class="btn btn-sm btn-danger" onclick="desactivarUsuario('${u.id}','${u.full_name||u.email}')">Desactivar</button>`:''}
   </div>`;
 }).join('')||'<div style="grid-column:1/-1"><div class="empty-state"><p>Sin usuarios</p></div></div>'}
 </div>`;
@@ -1353,25 +1453,54 @@ ${usuarios.map(u=>{
 
 async function changeUserRole(id, role){
   const {error}=await sb.from('profiles').update({role}).eq('id',id);
-  if(!error){toast('Rol actualizado');await loadAllData();renderUsuarios();}
+  if(!error){toast('Rol actualizado a '+ROLES[role]);await loadAllData();renderUsuarios();}
 }
 
-function openModalAgregarUsuario(){
-  $('modal-title').textContent='Agregar usuario al equipo';
+async function desactivarUsuario(id, nombre){
+  if(!confirm(`¿Desactivar a ${nombre}? Ya no podrá entrar al sistema.`)) return;
+  const {error}=await sb.from('profiles').update({is_active:false}).eq('id',id);
+  if(!error){toast('Usuario desactivado');await loadAllData();renderUsuarios();}
+}
+
+function openModalCrearUsuario(){
+  $('modal-title').textContent='Agregar miembro al equipo';
   $('modal-body').innerHTML=`
-<div style="background:#FEF3C7;border-radius:8px;padding:14px;margin-bottom:16px;font-size:12px;color:#92400E;line-height:1.7;border-left:3px solid #F59E0B">
-  <strong>Para agregar un usuario nuevo:</strong><br>
-  1. Ve a <strong>supabase.com</strong> → tu proyecto → <strong>Authentication → Users</strong><br>
-  2. Clic en <strong>"Invite user"</strong> e ingresa el correo del nuevo miembro<br>
-  3. El usuario recibirá un email para crear su contraseña<br>
-  4. Vuelve aquí y asigna su rol usando el selector en su tarjeta
+<div style="background:rgba(88,86,214,.08);border-radius:8px;padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--accent)">
+  El nuevo miembro recibirá un correo de invitación para crear su contraseña y acceder al portal.
 </div>
-<div style="background:#F0F9FF;border-radius:8px;padding:12px;font-size:12px;color:#0369A1;line-height:1.6">
-  <strong>¿Por qué desde Supabase?</strong><br>
-  La creación de usuarios requiere credenciales de administrador que no pueden exponerse en el navegador por seguridad.
-</div>`;
-  $('modal-footer').innerHTML=`<button class="btn btn-primary" onclick="closeModal()">Entendido</button>`;
-  openModal();
+<div class="form-row"><label class="form-label">Nombre completo *</label><input class="form-input" id="nu-nombre" placeholder="Ej: María García"></div>
+<div class="form-row"><label class="form-label">Correo electrónico *</label><input class="form-input" id="nu-email" type="email" placeholder="maria@gestionit.com.do"></div>
+<div class="form-row"><label class="form-label">Contraseña temporal *</label><input class="form-input" id="nu-pass" type="password" placeholder="Mínimo 6 caracteres"></div>
+<div class="form-row"><label class="form-label">Rol</label>
+  <select class="form-select" id="nu-rol">
+    ${Object.entries(ROLES).map(([k,v])=>`<option value="${k}">${v}${k==='head'?' (aprueba contenido)':k==='admin'?' (acceso total)':''}</option>`).join('')}
+  </select>
+</div>
+<div id="nu-error" style="display:none;background:#FFF0F0;color:var(--red);border-radius:8px;padding:9px 13px;font-size:12px;margin-top:10px"></div>`;
+  openModal(crearUsuario);
+}
+
+async function crearUsuario(){
+  const nombre=$('nu-nombre').value.trim();
+  const email=$('nu-email').value.trim();
+  const pass=$('nu-pass').value;
+  const role=$('nu-rol').value;
+  const errEl=$('nu-error');
+  errEl.style.display='none';
+  if(!nombre||!email||!pass){errEl.textContent='Completa todos los campos requeridos.';errEl.style.display='block';return;}
+  if(pass.length<6){errEl.textContent='La contraseña debe tener al menos 6 caracteres.';errEl.style.display='block';return;}
+  const btn=$('modal-save-btn');btn.disabled=true;btn.textContent='Creando...';
+  try{
+    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:nombre}}});
+    if(error){errEl.textContent='Error: '+error.message;errEl.style.display='block';btn.disabled=false;btn.textContent='Guardar';return;}
+    if(data?.user){
+      const av=nombre.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      await sb.from('profiles').upsert({id:data.user.id,email,full_name:nombre,role,avatar_initials:av,is_active:true});
+      toast('✓ Usuario creado: '+nombre);
+      closeModal();await loadAllData();renderUsuarios();
+    }
+  }catch(e){errEl.textContent='Error de conexión. Intenta de nuevo.';errEl.style.display='block';}
+  btn.disabled=false;btn.textContent='Guardar';
 }
 
 // ═══════════════════════════════════════════════
