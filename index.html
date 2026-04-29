@@ -389,34 +389,61 @@ function avHtml(name,size=24){ const i=initials(name); const colors=['av-purple'
 // ═══════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════
+
+// Safety: always exit loading after 6s no matter what
+setTimeout(()=>{
+  if($('loading-screen').style.display!=='none'){
+    $('loading-screen').style.display='none';
+    $('auth-screen').style.display='flex';
+  }
+}, 6000);
+
 async function init(){
   try {
-    const { data:{ session } } = await sb.auth.getSession();
-    hide('loading-screen');
+    const result = await Promise.race([
+      sb.auth.getSession(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),5000))
+    ]);
+    const session = result?.data?.session;
+    $('loading-screen').style.display='none';
     if(session?.user){ await loadProfile(session.user); showApp(); }
-    else { show('auth-screen'); }
-    sb.auth.onAuthStateChange(async(event,session)=>{
-      if(event==='SIGNED_IN' && session?.user){ await loadProfile(session.user); showApp(); }
-      else if(event==='SIGNED_OUT'){ hide('app'); show('auth-screen'); }
-    });
-  } catch(e){ hide('loading-screen'); show('auth-screen'); }
+    else { $('auth-screen').style.display='flex'; }
+  } catch(e){
+    $('loading-screen').style.display='none';
+    $('auth-screen').style.display='flex';
+  }
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN' && session?.user){ await loadProfile(session.user); showApp(); }
+    else if(event==='SIGNED_OUT'){ $('app').style.display='none'; $('auth-screen').style.display='flex'; }
+  });
 }
 
 async function loadProfile(user){
   currentUser = user;
+  // Fallback profile — never fails
+  currentProfile = {
+    id: user.id,
+    email: user.email,
+    full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+    role: 'admin',
+    is_active: true,
+    avatar_initials: (user.email.slice(0,2)).toUpperCase()
+  };
   try {
-    const { data } = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
-    if(data){ currentProfile=data; }
-    else {
-      const fb={id:user.id,email:user.email,full_name:user.email.split('@')[0],role:'admin',is_active:true,avatar_initials:user.email.slice(0,2).toUpperCase()};
-      await sb.from('profiles').upsert(fb); currentProfile=fb;
+    const { data, error } = await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+    if(data && !error){ currentProfile = data; }
+    else if(!data){
+      // Profile doesn't exist — create it (ignore constraint errors)
+      const fb={id:user.id,email:user.email,full_name:currentProfile.full_name,role:'admin',is_active:true,avatar_initials:currentProfile.avatar_initials};
+      try{ await sb.from('profiles').insert(fb); }catch(_){}
     }
-  } catch(e){ currentProfile={email:user.email,full_name:user.email.split('@')[0],role:'admin'}; }
-  const name=currentProfile.full_name||currentProfile.email;
-  $('sb-avatar').textContent=initials(name);
-  $('sb-name').textContent=name;
-  $('sb-role').textContent=currentProfile.role||'admin';
-  if(currentProfile.role!=='admin') $('admin-nav').style.display='none';
+  } catch(e){ /* use fallback */ }
+  const name = currentProfile.full_name || currentProfile.email;
+  const av = initials(name);
+  if($('sb-avatar')) $('sb-avatar').textContent = av;
+  if($('sb-name')) $('sb-name').textContent = name;
+  if($('sb-role')) $('sb-role').textContent = ROLES[currentProfile.role] || currentProfile.role || 'Admin';
+  if($('admin-nav') && currentProfile.role !== 'admin') $('admin-nav').style.display = 'none';
 }
 
 async function doLogin(){
@@ -432,40 +459,42 @@ async function doLogin(){
   btn.disabled=false; btn.textContent='Entrar al portal';
 }
 
-async function doLogout(){ await sb.auth.signOut(); currentUser=null; currentProfile=null; hide('app'); show('auth-screen'); }
+async function doLogout(){ await sb.auth.signOut(); currentUser=null; currentProfile=null; $('app').style.display='none'; $('auth-screen').style.display='flex'; }
 
 // ═══════════════════════════════════════════════
 // APP INIT
 // ═══════════════════════════════════════════════
 async function showApp(){
-  hide('auth-screen'); $('app').style.display='block';
+  $('auth-screen').style.display='none';
+  $('loading-screen').style.display='none';
+  $('app').style.display='block';
   await loadAllData();
   renderPage('dashboard');
   loadNotifications();
 }
 
+// Helper: load one table safely — never throws
+async function sq(fn){
+  try{ const r=await fn(); return r.data||[]; }catch(_){ return []; }
+}
+
 async function loadAllData(){
   try {
     const [leads,tareas,contenido,campanas,eventos,emails,blogs,usuarios] = await Promise.all([
-      sb.from('leads').select('*,profiles!leads_assigned_to_fkey(full_name)').order('created_at',{ascending:false}),
-      sb.from('tareas').select('*').order('created_at',{ascending:false}),
-      sb.from('contenido').select('*').order('created_at',{ascending:false}),
-      sb.from('campanas').select('*').order('created_at',{ascending:false}),
-      sb.from('eventos').select('*').order('fecha',{ascending:false}),
-      sb.from('email_campaigns').select('*').order('created_at',{ascending:false}),
-      sb.from('blog_posts').select('*').order('created_at',{ascending:false}),
-      sb.from('profiles').select('*').eq('is_active',true).order('full_name'),
+      sq(()=>sb.from('leads').select('*').order('created_at',{ascending:false})),
+      sq(()=>sb.from('tareas').select('*').order('created_at',{ascending:false})),
+      sq(()=>sb.from('contenido').select('*').order('created_at',{ascending:false})),
+      sq(()=>sb.from('campanas').select('*').order('created_at',{ascending:false})),
+      sq(()=>sb.from('eventos').select('*').order('fecha',{ascending:false})),
+      sq(()=>sb.from('email_campaigns').select('*').order('created_at',{ascending:false})),
+      sq(()=>sb.from('blog_posts').select('*').order('created_at',{ascending:false})),
+      sq(()=>sb.from('profiles').select('*').eq('is_active',true).order('full_name')),
     ]);
-    allData.leads = leads.data||[];
-    allData.tareas = tareas.data||[];
-    allData.contenido = contenido.data||[];
-    allData.campanas = campanas.data||[];
-    allData.eventos = eventos.data||[];
-    allData.emails = emails.data||[];
-    allData.blogs = blogs.data||[];
-    allData.usuarios = usuarios.data||[];
+    allData.leads=leads; allData.tareas=tareas; allData.contenido=contenido;
+    allData.campanas=campanas; allData.eventos=eventos; allData.emails=emails;
+    allData.blogs=blogs; allData.usuarios=usuarios;
     updateBadges();
-  } catch(e){ console.error('loadAllData',e); }
+  } catch(e){ console.warn('loadAllData',e); }
 }
 
 function updateBadges(){
