@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gestión IT · Marketing OS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Cargar Supabase de forma segura con fallback
+window._sbLoaded = false;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="window._sbLoaded=true" onerror="window._sbError=true"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -351,8 +355,30 @@ tr:hover td{background:rgba(0,0,0,.02)}
 // ═══════════════════════════════════════════════
 const SUPABASE_URL = 'https://mfnydvmaeppdriummxqn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mbnlkdm1hZXBwZHJpdW1teHFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwNDk4MTMsImV4cCI6MjA5MjYyNTgxM30.1IQoa2hXuf5g7Y6JCf-1866Vn7vVKxLrVMZjG-AifYI';
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let sb = null;
+function showLoginScreen(){
+  if($('loading-screen')) $('loading-screen').style.display='none';
+  if($('auth-screen')) $('auth-screen').style.display='flex';
+}
+
+function initSupabase(){
+  try {
+    if(typeof supabase === 'undefined' || !supabase.createClient){
+      showLoginScreen();
+      if($('login-error')){
+        $('login-error').textContent='Error cargando librería. Recarga la página.';
+        $('login-error').style.display='block';
+      }
+      return false;
+    }
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return true;
+  } catch(e){
+    showLoginScreen();
+    return false;
+  }
+}
 
 // ═══════════════════════════════════════════════
 // STATE
@@ -390,32 +416,33 @@ function avHtml(name,size=24){ const i=initials(name); const colors=['av-purple'
 // AUTH
 // ═══════════════════════════════════════════════
 
-// Safety: always exit loading after 6s no matter what
+// Safety: always exit loading after 5s no matter what
 setTimeout(()=>{
-  if($('loading-screen').style.display!=='none'){
-    $('loading-screen').style.display='none';
-    $('auth-screen').style.display='flex';
+  if($('loading-screen') && $('loading-screen').style.display!=='none'){
+    showLoginScreen();
   }
-}, 6000);
+}, 5000);
 
 async function init(){
+  if(!initSupabase()) return;
   try {
     const result = await Promise.race([
       sb.auth.getSession(),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),5000))
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),4000))
     ]);
     const session = result?.data?.session;
     $('loading-screen').style.display='none';
     if(session?.user){ await loadProfile(session.user); showApp(); }
     else { $('auth-screen').style.display='flex'; }
   } catch(e){
-    $('loading-screen').style.display='none';
-    $('auth-screen').style.display='flex';
+    showLoginScreen();
   }
-  sb.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='SIGNED_IN' && session?.user){ await loadProfile(session.user); showApp(); }
-    else if(event==='SIGNED_OUT'){ $('app').style.display='none'; $('auth-screen').style.display='flex'; }
-  });
+  try {
+    sb.auth.onAuthStateChange(async(event,session)=>{
+      if(event==='SIGNED_IN' && session?.user){ await loadProfile(session.user); showApp(); }
+      else if(event==='SIGNED_OUT'){ $('app').style.display='none'; $('auth-screen').style.display='flex'; }
+    });
+  } catch(e){}
 }
 
 async function loadProfile(user){
@@ -447,6 +474,7 @@ async function loadProfile(user){
 }
 
 async function doLogin(){
+  if(!sb && !initSupabase()) return;
   const email=$('login-email').value.trim(), pass=$('login-password').value;
   $('login-error').style.display='none';
   if(!email||!pass){ $('login-error').textContent='Completa todos los campos.'; $('login-error').style.display='block'; return; }
@@ -1635,9 +1663,22 @@ document.addEventListener('click', e=>{
 });
 
 // ═══════════════════════════════════════════════
-// START
+// START — wait for Supabase CDN to load
 // ═══════════════════════════════════════════════
-init();
+function startApp(){
+  if(typeof supabase !== 'undefined' && supabase.createClient){
+    init();
+  } else {
+    // CDN not ready yet — retry
+    setTimeout(startApp, 100);
+  }
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', startApp);
+} else {
+  startApp();
+}
 </script>
 </body>
 </html>
