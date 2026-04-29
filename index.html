@@ -227,8 +227,10 @@ tr:hover td{background:rgba(0,0,0,.02)}
 .detail-panel.open{transform:translateX(0)}
 .detail-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}
 .detail-body{padding:20px}
-.detail-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3);padding:4px;border-radius:6px}
-.detail-close:hover{color:var(--text)}
+.detail-close{background:var(--bg3);border:none;cursor:pointer;font-size:15px;color:var(--text);padding:0;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.detail-close:hover{background:var(--bg4)}
+.detail-close-arrow{display:none}
+.detail-close-x{display:block}
 .detail-section{margin-bottom:18px}
 .detail-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
 .detail-row{display:flex;margin-bottom:8px}
@@ -351,26 +353,111 @@ tr:hover td{background:rgba(0,0,0,.02)}
   .kpi-val{ font-size:20px; }
   .card{ padding:12px; }
 
-  /* Detail panel full width en móvil */
-  .detail-panel{ width:100%; top:0; border-radius:0; }
+  /* Detail close — show back arrow on mobile */
+  .detail-close-arrow{ display:block; font-size:18px; }
+  .detail-close-x{ display:none; }
+  .detail-close{ width:44px; height:44px; border-radius:12px; background:var(--bg3); }
+  .detail-panel{ 
+    width:100%; 
+    top:0; 
+    border-radius:0; 
+    z-index:900;
+  }
+  .detail-header{ 
+    padding: max(env(safe-area-inset-top), 16px) 16px 14px;
+    min-height:60px;
+    position:sticky;
+    top:0;
+    background:var(--bg2);
+    z-index:2;
+  }
+  .detail-close{
+    width:40px; height:40px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg3);
+    border-radius:50%;
+    font-size:16px;
+    color:var(--text);
+  }
+  .detail-body{ padding:16px 16px 100px; }
 
-  /* Modal full width */
-  .modal-inner{ width:100%; max-width:100%; border-radius:16px 16px 0 0; position:fixed; bottom:0; left:0; right:0; margin:0; max-height:92vh; }
+  /* Modal bottom sheet — drag handle + cancel siempre visible */
+  .modal-inner{ 
+    width:100%; max-width:100%; 
+    border-radius:20px 20px 0 0; 
+    position:fixed; bottom:0; left:0; right:0; 
+    margin:0; 
+    max-height:92vh;
+    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+  }
+  .modal-inner::before{
+    content:'';
+    display:block;
+    width:36px; height:4px;
+    background:var(--bg4);
+    border-radius:2px;
+    margin:0 auto 16px;
+  }
   .modal-backdrop{ align-items:flex-end; }
+  .modal-footer{
+    position:sticky;
+    bottom:0;
+    background:var(--bg2);
+    padding:12px 0 0;
+    margin-top:8px;
+    border-top:1px solid var(--border);
+    display:flex;
+    gap:8px;
+    justify-content:stretch;
+  }
+  .modal-footer .btn{
+    flex:1;
+    padding:14px;
+    font-size:14px;
+    border-radius:12px;
+  }
 
   /* Notif panel full width */
-  .notif-panel{ width:calc(100vw - 24px); right:12px; top:52px; }
+  .notif-panel{ 
+    width:100%; 
+    right:0; 
+    left:0;
+    top:0;
+    border-radius:0;
+    max-height:70vh;
+    border:none;
+    border-bottom:1px solid var(--border);
+    padding-top: max(env(safe-area-inset-top), 8px);
+  }
 
-  /* Tablas scroll horizontal */
-  .tbl-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
-  td, th{ font-size:11px; padding:8px 10px; white-space:nowrap; }
+  /* More menu — bottom sheet style */
+  .mobile-more-menu{
+    border-radius:20px 20px 0 0;
+    padding: 8px 16px max(env(safe-area-inset-bottom), 16px);
+    box-shadow: 0 -8px 30px rgba(0,0,0,.15);
+  }
+  .mobile-more-menu::before{
+    content:'';
+    display:block;
+    width:36px; height:4px;
+    background:var(--bg4);
+    border-radius:2px;
+    margin:0 auto 12px;
+  }
 
-  /* Formularios touch-friendly */
-  .form-input,.form-select,.form-textarea{ font-size:16px !important; padding:12px; } /* 16px evita zoom en iOS */
-  .btn{ padding:10px 16px; }
-  .btn-sm{ padding:8px 12px; font-size:12px; }
-  .filter-row{ gap:4px; }
-  .filter-pill{ padding:6px 10px; font-size:11px; }
+  /* Buttons — minimum 44px touch target (Apple HIG) */
+  .btn{ min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
+  .btn-sm{ min-height:36px; }
+  .filter-pill{ min-height:34px; display:inline-flex; align-items:center; }
+
+  /* Approval row buttons bigger on mobile */
+  .approval-row .btn{ min-width:44px; min-height:44px; }
+
+  /* Table rows — bigger tap targets */
+  td{ padding:12px 10px; }
+
+  /* K-card bigger tap area */
+  .k-card{ padding:14px; margin-bottom:10px; }
 
   /* Auth card full width */
   .auth-card{ width:100%; margin:0 16px; padding:32px 24px; }
@@ -380,8 +467,12 @@ tr:hover td{background:rgba(0,0,0,.02)}
   .cal-day-num{ font-size:10px; }
   .cal-event{ font-size:8px; }
 
-  /* Toast arriba en móvil */
+  /* Toast sobre el bottom nav */
   .toast{ bottom:calc(70px + env(safe-area-inset-bottom)); font-size:13px; }
+  
+  /* Nav items — bigger tap area */
+  .nav-item{ min-height:44px; }
+  .bn-item{ min-height:56px; }
 }
 
 @media (max-width: 380px) {
@@ -393,7 +484,7 @@ tr:hover td{background:rgba(0,0,0,.02)}
 </head>
 <body>
 
-<div id="loading-screen" style="display:none"><div class="spinner"></div><span>Cargando Marketing OS...</span></div>
+<div id="loading-screen" style="display:flex"><div class="spinner"></div><span>Cargando Marketing OS...</span></div>
 
 <div id="auth-screen">
   <div class="auth-grid"></div>
@@ -545,8 +636,11 @@ tr:hover td{background:rgba(0,0,0,.02)}
 <div class="detail-overlay" id="detail-overlay" onclick="closeDetail()"></div>
 <div class="detail-panel" id="detail-panel">
   <div class="detail-header">
-    <span class="detail-title" id="detail-title" style="font-size:14px;font-weight:600"></span>
-    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <button class="detail-close" onclick="closeDetail()">
+      <span class="detail-close-arrow">←</span>
+      <span class="detail-close-x">✕</span>
+    </button>
+    <span class="detail-title" id="detail-title" style="font-size:14px;font-weight:600;flex:1;margin-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
   </div>
   <div class="detail-body" id="detail-body"></div>
 </div>
@@ -1006,7 +1100,8 @@ async function saveLead(){
   const empresa=$('ml-empresa').value.trim(), contacto=$('ml-contacto').value.trim();
   if(!empresa||!contacto){ toast('Completa empresa y contacto'); return; }
   const responsableId=$('ml-resp').value||null;
-  const obj={company_name:empresa,contact_name:contacto,contact_email:$('ml-email').value,contact_phone:$('ml-tel').value,cargo:$('ml-cargo').value,solution:$('ml-sol').value,source:$('ml-canal').value,deal_value:parseFloat($('ml-valor').value)||null,assigned_to:responsableId,stage:$('ml-stage').value,notes:$('ml-notas').value};
+  const obj={company_name:empresa,contact_name:contacto,contact_email:$('ml-email').value,contact_phone:$('ml-tel').value,cargo:$('ml-cargo').value,solution:$('ml-sol').value,source:$('ml-canal').value,deal_value:parseFloat($('ml-valor').value)||null,stage:$('ml-stage').value,notes:$('ml-notas').value};
+  if(responsableId) obj.assigned_to = responsableId;
   const { data, error } = await sb.from('leads').insert(obj).select().single();
   if(!error){
     await logHistorial('creó lead','leads',data?.id,empresa,'','');
@@ -2069,9 +2164,33 @@ function closeModal(){ $('modal-main').classList.remove('open'); }
 function openDetail(){ $('detail-overlay').classList.add('open'); $('detail-panel').classList.add('open'); }
 function closeDetail(){ $('detail-overlay').classList.remove('open'); $('detail-panel').classList.remove('open'); }
 
-// ═══════════════════════════════════════════════
-// CLICK OUTSIDE HANDLERS
-// ═══════════════════════════════════════════════
+// ── SWIPE GESTURES (mobile) ──────────────────────────────────
+(function(){
+  let startX=0, startY=0;
+
+  // Swipe right → close detail panel
+  document.addEventListener('touchstart', e=>{
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+  }, {passive:true});
+
+  document.addEventListener('touchend', e=>{
+    const dx=e.changedTouches[0].clientX - startX;
+    const dy=Math.abs(e.changedTouches[0].clientY - startY);
+    const panel=$('detail-panel');
+    const modal=$('modal-main');
+
+    // Swipe right >80px, mostly horizontal → close detail
+    if(dx>80 && dy<60 && panel?.classList.contains('open')){
+      closeDetail();
+    }
+    // Swipe down >80px, mostly vertical on modal → close modal
+    const modalDY = e.changedTouches[0].clientY - startY;
+    if(modalDY>80 && Math.abs(dx)<60 && modal?.classList.contains('open')){
+      closeModal();
+    }
+  }, {passive:true});
+})();
 document.addEventListener('click', e=>{
   // Close notif panel
   const np=$('notif-panel');
