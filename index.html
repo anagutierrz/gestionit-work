@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gestión IT · Marketing OS</title>
+<meta name="version" content="v3.4-20260428">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <script>
 // Cargar Supabase de forma segura con fallback
 window._sbLoaded = false;
@@ -42,7 +46,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13
 .auth-error{background:#FFF0F0;color:#FF3B30;border:1px solid rgba(255,59,48,.2);border-radius:8px;padding:9px 13px;font-size:12px;margin-bottom:14px;display:none}
 .auth-lock{text-align:center;margin-top:18px;font-size:10px;color:#8E8E93;display:flex;align-items:center;justify-content:center;gap:4px}
 /* LOADING */
-#loading-screen{position:fixed;inset:0;background:#0D0F12;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:14px}
+#loading-screen{position:fixed;inset:0;background:#0D0F12;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:14px}
 .spinner{width:28px;height:28px;border:2.5px solid rgba(255,255,255,.15);border-top-color:#5856D6;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading-screen span{font-size:12px;color:rgba(255,255,255,.4)}
@@ -232,9 +236,9 @@ tr:hover td{background:rgba(0,0,0,.02)}
 </head>
 <body>
 
-<div id="loading-screen"><div class="spinner"></div><span>Cargando Marketing OS...</span></div>
+<div id="loading-screen" style="display:none"><div class="spinner"></div><span>Cargando Marketing OS...</span></div>
 
-<div id="auth-screen" style="display:none">
+<div id="auth-screen">
   <div class="auth-grid"></div>
   <div class="auth-card">
     <div class="auth-logo">
@@ -1350,6 +1354,7 @@ async function saveCampanaMetrics(id){
   if(!error){toast('Métricas guardadas y actualizadas en Dashboard');await loadAllData();renderCampanas();openCampanaDetail(id);}
   else toast('Error: '+error.message);
 }
+async function changeCampanaEstado(id, estado){
   const {error}=await sb.from('campanas').update({estado}).eq('id',id);
   if(!error){toast('Estado: '+estado);await loadAllData();renderCampanas();openCampanaDetail(id);}
 }
