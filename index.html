@@ -2,12 +2,28 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión IT · Marketing OS</title>
-<meta name="version" content="v3.4-20260428">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="version" content="v3.5-mobile">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+
+<!-- PWA: instalar como app en móvil -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gestión IT">
+<meta name="application-name" content="Gestión IT">
+<meta name="theme-color" content="#0D0F12">
+<meta name="description" content="Marketing OS · Gestión IT">
+
+<!-- Icono para pantalla de inicio iOS/Android -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSI0MCIgZmlsbD0iIzBEMEYxMiIvPjxyZWN0IHg9IjM0IiB5PSIzNCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTAiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iOTgiIHk9IjM0IiB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC42Ii8+PHJlY3QgeD0iMzQiIHk9Ijk4IiB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC42Ii8+PHJlY3QgeD0iOTgiIHk9Ijk4IiB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHJ4PSIxMCIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4zIi8+PC9zdmc+">
+
+<!-- Manifest para Android/Chrome -->
+<link rel="manifest" href="data:application/json;charset=utf-8,{&quot;name&quot;:&quot;Gestión IT Marketing OS&quot;,&quot;short_name&quot;:&quot;GestiónIT&quot;,&quot;description&quot;:&quot;Marketing Operating System&quot;,&quot;start_url&quot;:&quot;/&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%230D0F12&quot;,&quot;theme_color&quot;:&quot;%230D0F12&quot;,&quot;orientation&quot;:&quot;portrait&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSI0MCIgZmlsbD0iIzBEMEYxMiIvPjxyZWN0IHg9IjM2IiB5PSIzNiIgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IndoaXRlIi8+PHJlY3QgeD0iMTA2IiB5PSIzNiIgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuNiIvPjxyZWN0IHg9IjM2IiB5PSIxMDYiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgcng9IjEwIiBmaWxsPSJ3aGl0ZSIgZmlsbC1vcGFjaXR5PSIwLjYiLz48cmVjdCB4PSIxMDYiIHk9IjEwNiIgd2lkdGg9IjUwIiBoZWlnaHQ9IjUwIiByeD0iMTAiIGZpbGw9IndoaXRlIiBmaWxsLW9wYWNpdHk9IjAuMyIvPjwvc3ZnPg==&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
+
+<title>Gestión IT · Marketing OS</title>
 <script>
 // Cargar Supabase de forma segura con fallback
 window._sbLoaded = false;
@@ -231,7 +247,90 @@ tr:hover td{background:rgba(0,0,0,.02)}
 .user-card-av{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:white;margin:0 auto 10px}
 .user-card-name{font-size:13px;font-weight:600;margin-bottom:3px}
 .user-card-role{font-size:11px;color:var(--text3);margin-bottom:10px}
-.role-colors{admin:'#5856D6',estratega:'#007AFF',copywriter:'#FF9500',diseñador:'#FF2D55',filmmaker:'#5AC8FA',publicador:'#34C759',analista:'#FF6B35',viewer:'#8E8E93'}
+
+/* ── BOTTOM NAV MOBILE ───────────────────────────── */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:600;padding:0 0 env(safe-area-inset-bottom);height:calc(56px + env(safe-area-inset-bottom))}
+.bottom-nav-inner{display:grid;grid-template-columns:repeat(5,1fr);height:56px}
+.bn-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);transition:color .15s;padding:4px;position:relative;border:none;background:none;width:100%}
+.bn-item.active{color:var(--accent)}
+.bn-icon{font-size:20px;line-height:1}
+.bn-label{font-size:9px;font-weight:500;letter-spacing:.2px}
+.bn-badge{position:absolute;top:4px;right:calc(50% - 14px);background:var(--red);color:white;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+/* MORE MENU */
+.mobile-more-menu{display:none;position:fixed;bottom:calc(56px + env(safe-area-inset-bottom));left:0;right:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:599;padding:12px 16px 16px}
+.mobile-more-menu.open{display:block}
+.mmenu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mmenu-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border-radius:12px;cursor:pointer;background:var(--bg3);border:1px solid var(--border)}
+.mmenu-item.active{background:rgba(88,86,214,.1);border-color:rgba(88,86,214,.2);color:var(--accent)}
+.mmenu-icon{font-size:22px}
+.mmenu-label{font-size:10px;font-weight:500;text-align:center;color:var(--text2)}
+/* MOBILE SIDEBAR TOGGLE */
+.menu-toggle{display:none;background:none;border:none;font-size:20px;cursor:pointer;padding:6px;color:var(--text)}
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Ocultar sidebar, mostrar bottom nav */
+  .sidebar{ display:none !important; }
+  .bottom-nav{ display:block; }
+  .menu-toggle{ display:flex; }
+
+  /* Ajustar layout */
+  .app{ flex-direction:column; }
+  .main{ height:calc(100vh - 56px - env(safe-area-inset-bottom)); overflow:hidden; }
+  .topbar{ padding:0 12px; height:48px; padding-top:env(safe-area-inset-top); }
+  .topbar-title{ font-size:14px; }
+  .content-area{ padding:12px; padding-bottom:20px; -webkit-overflow-scrolling:touch; }
+
+  /* Grids → 1 o 2 columnas */
+  .kpi-grid{ grid-template-columns:repeat(2,1fr); gap:8px; }
+  .two-col{ grid-template-columns:1fr; }
+  .three-col{ grid-template-columns:1fr; }
+  .content-grid{ grid-template-columns:repeat(2,1fr); gap:8px; }
+  .user-grid{ grid-template-columns:repeat(2,1fr); }
+  .kanban{ grid-template-columns:repeat(2,1fr); overflow-x:auto; min-width:0; }
+
+  /* Tamaños de texto */
+  .kpi-val{ font-size:20px; }
+  .card{ padding:12px; }
+
+  /* Detail panel full width en móvil */
+  .detail-panel{ width:100%; top:0; border-radius:0; }
+
+  /* Modal full width */
+  .modal-inner{ width:100%; max-width:100%; border-radius:16px 16px 0 0; position:fixed; bottom:0; left:0; right:0; margin:0; max-height:92vh; }
+  .modal-backdrop{ align-items:flex-end; }
+
+  /* Notif panel full width */
+  .notif-panel{ width:calc(100vw - 24px); right:12px; top:52px; }
+
+  /* Tablas scroll horizontal */
+  .tbl-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  td, th{ font-size:11px; padding:8px 10px; white-space:nowrap; }
+
+  /* Formularios touch-friendly */
+  .form-input,.form-select,.form-textarea{ font-size:16px !important; padding:12px; } /* 16px evita zoom en iOS */
+  .btn{ padding:10px 16px; }
+  .btn-sm{ padding:8px 12px; font-size:12px; }
+  .filter-row{ gap:4px; }
+  .filter-pill{ padding:6px 10px; font-size:11px; }
+
+  /* Auth card full width */
+  .auth-card{ width:100%; margin:0 16px; padding:32px 24px; }
+
+  /* Calendario más pequeño */
+  .cal-cell{ min-height:50px; padding:4px; }
+  .cal-day-num{ font-size:10px; }
+  .cal-event{ font-size:8px; }
+
+  /* Toast arriba en móvil */
+  .toast{ bottom:calc(70px + env(safe-area-inset-bottom)); font-size:13px; }
+}
+
+@media (max-width: 380px) {
+  .kpi-grid{ grid-template-columns:repeat(2,1fr); }
+  .content-grid{ grid-template-columns:1fr; }
+  .user-grid{ grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -305,6 +404,7 @@ tr:hover td{background:rgba(0,0,0,.02)}
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
+    <button class="menu-toggle" onclick="toggleMoreMenu()" id="menu-toggle-btn">☰</button>
     <div class="topbar-title" id="topbar-title">Dashboard</div>
     <div class="topbar-actions">
       <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-dot" id="notif-dot"></span></button>
@@ -318,6 +418,49 @@ tr:hover td{background:rgba(0,0,0,.02)}
 
 </div><!-- .app -->
 </div><!-- #app -->
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="bn-item active" id="bn-dashboard" onclick="mobileNav('dashboard')">
+      <span class="bn-icon">⊞</span><span class="bn-label">Inicio</span>
+    </button>
+    <button class="bn-item" id="bn-leads" onclick="mobileNav('leads')">
+      <span class="bn-icon">◎</span><span class="bn-label">Leads</span>
+      <span class="bn-badge" id="mbn-leads" style="display:none">0</span>
+    </button>
+    <button class="bn-item" id="bn-tareas" onclick="mobileNav('tareas')">
+      <span class="bn-icon">◱</span><span class="bn-label">Tareas</span>
+      <span class="bn-badge" id="mbn-tareas" style="display:none">0</span>
+    </button>
+    <button class="bn-item" id="bn-contenido" onclick="mobileNav('contenido')">
+      <span class="bn-icon">◫</span><span class="bn-label">Contenido</span>
+      <span class="bn-badge" id="mbn-contenido" style="display:none">0</span>
+    </button>
+    <button class="bn-item" id="bn-more" onclick="toggleMoreMenu()">
+      <span class="bn-icon">⋯</span><span class="bn-label">Más</span>
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE MORE MENU -->
+<div class="mobile-more-menu" id="mobile-more-menu">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <span style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Más módulos</span>
+    <button onclick="toggleMoreMenu()" style="background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer">✕</button>
+  </div>
+  <div class="mmenu-grid">
+    <div class="mmenu-item" onclick="mobileNav('calendario');toggleMoreMenu()"><span class="mmenu-icon">▦</span><span class="mmenu-label">Calendario</span></div>
+    <div class="mmenu-item" onclick="mobileNav('email');toggleMoreMenu()"><span class="mmenu-icon">◧</span><span class="mmenu-label">Email</span></div>
+    <div class="mmenu-item" onclick="mobileNav('seo');toggleMoreMenu()"><span class="mmenu-icon">◐</span><span class="mmenu-label">Blog</span></div>
+    <div class="mmenu-item" onclick="mobileNav('campanas');toggleMoreMenu()"><span class="mmenu-icon">◉</span><span class="mmenu-label">Campañas</span></div>
+    <div class="mmenu-item" onclick="mobileNav('metaads');toggleMoreMenu()"><span class="mmenu-icon">◈</span><span class="mmenu-label">Meta Ads</span></div>
+    <div class="mmenu-item" onclick="mobileNav('eventos');toggleMoreMenu()"><span class="mmenu-icon">◑</span><span class="mmenu-label">Eventos</span></div>
+    <div class="mmenu-item" onclick="mobileNav('usuarios');toggleMoreMenu()"><span class="mmenu-icon">◷</span><span class="mmenu-label">Usuarios</span></div>
+    <div class="mmenu-item" onclick="mobileNav('historial');toggleMoreMenu()"><span class="mmenu-icon">◶</span><span class="mmenu-label">Historial</span></div>
+    <div class="mmenu-item" onclick="doLogout()" style="border-color:rgba(255,59,48,.2)"><span class="mmenu-icon" style="color:var(--red)">⏻</span><span class="mmenu-label" style="color:var(--red)">Salir</span></div>
+  </div>
+</div>
 
 <!-- NOTIF PANEL -->
 <div class="notif-panel" id="notif-panel">
@@ -533,13 +676,48 @@ function updateBadges(){
   const sinSeg = allData.leads.filter(l=>l.stage==='sin_respuesta').length;
   const tareasVenc = allData.tareas.filter(t=>t.estado==='vencida'||t.estado==='pendiente').length;
   const pendAprov = allData.contenido.filter(c=>c.estado_aprobacion==='pendiente').length;
+  // Sidebar badges
   $('nb-leads').textContent = sinSeg||'0';
   $('nb-tareas').textContent = tareasVenc||'0';
   $('nb-contenido').textContent = pendAprov||'0';
   if(!sinSeg) $('nb-leads').style.display='none'; else $('nb-leads').style.display='';
   if(!tareasVenc) $('nb-tareas').style.display='none'; else $('nb-tareas').style.display='';
   if(!pendAprov) $('nb-contenido').style.display='none'; else $('nb-contenido').style.display='';
+  // Bottom nav badges
+  const mbl=$('mbn-leads'), mbt=$('mbn-tareas'), mbc=$('mbn-contenido');
+  if(mbl){ mbl.textContent=sinSeg; mbl.style.display=sinSeg?'flex':'none'; }
+  if(mbt){ mbt.textContent=tareasVenc; mbt.style.display=tareasVenc?'flex':'none'; }
+  if(mbc){ mbc.textContent=pendAprov; mbc.style.display=pendAprov?'flex':'none'; }
 }
+
+// Mobile nav — syncs bottom nav active state
+const MOBILE_MAIN = ['dashboard','leads','tareas','contenido'];
+function mobileNav(page){
+  nav(page);
+  // Update bottom nav active
+  MOBILE_MAIN.forEach(p=>{
+    const btn=$(`bn-${p}`);
+    if(btn) btn.classList.toggle('active', p===page);
+  });
+  // If not main section, highlight "more"
+  const moreBtn=$('bn-more');
+  if(moreBtn) moreBtn.classList.toggle('active', !MOBILE_MAIN.includes(page));
+}
+
+function toggleMoreMenu(){
+  const m=$('mobile-more-menu');
+  if(m) m.classList.toggle('open');
+}
+
+// Close more menu on outside click
+document.addEventListener('click', e=>{
+  const menu=$('mobile-more-menu');
+  const btn=$('menu-toggle-btn');
+  const moreBtn=$('bn-more');
+  if(menu && menu.classList.contains('open') && !menu.contains(e.target) && e.target!==btn && e.target!==moreBtn && !moreBtn?.contains(e.target)){
+    menu.classList.remove('open');
+  }
+});
 
 // ═══════════════════════════════════════════════
 // NAVIGATION
@@ -1760,11 +1938,13 @@ function openDetail(){ $('detail-overlay').classList.add('open'); $('detail-pane
 function closeDetail(){ $('detail-overlay').classList.remove('open'); $('detail-panel').classList.remove('open'); }
 
 // ═══════════════════════════════════════════════
-// CLICK OUTSIDE NOTIF PANEL
+// CLICK OUTSIDE HANDLERS
 // ═══════════════════════════════════════════════
 document.addEventListener('click', e=>{
-  if(!$('notif-panel').contains(e.target) && !$('notif-btn').contains(e.target)){
-    $('notif-panel').classList.remove('open');
+  // Close notif panel
+  const np=$('notif-panel');
+  if(np && np.classList.contains('open') && !np.contains(e.target) && !$('notif-btn')?.contains(e.target)){
+    np.classList.remove('open');
   }
 });
 
