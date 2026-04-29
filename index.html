@@ -520,7 +520,7 @@ async function loadAllData(){
       sq(()=>sb.from('eventos').select('*').order('fecha',{ascending:false})),
       sq(()=>sb.from('email_campaigns').select('*').order('created_at',{ascending:false})),
       sq(()=>sb.from('blog_posts').select('*').order('created_at',{ascending:false})),
-      sq(()=>sb.from('profiles').select('*').eq('is_active',true).order('full_name')),
+      sq(()=>sb.from('profiles').select('*').order('full_name')),
     ]);
     allData.leads=leads; allData.tareas=tareas; allData.contenido=contenido;
     allData.campanas=campanas; allData.eventos=eventos; allData.emails=emails;
@@ -933,8 +933,29 @@ ${c.guion?`<div class="detail-section">
   <div style="display:flex;gap:6px;flex-wrap:wrap">
     ${Object.entries(CONTENT_ESTADOS).map(([k,v])=>`<button class="btn btn-sm btn-ghost" onclick="changeContenidoEstado('${c.id}','${k}')">${v}</button>`).join('')}
   </div>
+</div>
+<div class="detail-section">
+  <div class="detail-section-title">Entregables del diseñador</div>
+  <div id="archivos-list-${c.id}" style="margin-bottom:10px">
+    <div style="font-size:11px;color:var(--text3)">Cargando archivos...</div>
+  </div>
+  <div style="border:2px dashed var(--border2);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .15s" id="drop-zone-${c.id}"
+    onclick="$('file-input-${c.id}').click()"
+    ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+    ondragleave="this.style.borderColor='var(--border2)'"
+    ondrop="event.preventDefault();this.style.borderColor='var(--border2)';handleFileDrop(event,'${c.id}')">
+    <div style="font-size:20px;margin-bottom:6px">↑</div>
+    <div style="font-size:12px;font-weight:500;color:var(--text2)">Subir entregable</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:3px">Imágenes, videos, PDF, ZIP · Máx 50MB</div>
+  </div>
+  <input type="file" id="file-input-${c.id}" style="display:none" multiple accept="image/*,video/*,.pdf,.zip,.ai,.psd,.fig,.mp4,.mov" onchange="uploadContenidoArchivo(this,'${c.id}')">
+  <div id="upload-progress-${c.id}" style="display:none;margin-top:8px">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:4px" id="upload-msg-${c.id}">Subiendo...</div>
+    <div class="progress-bar"><div class="progress-fill" id="upload-bar-${c.id}" style="width:0%"></div></div>
+  </div>
 </div>`;
   openDetail();
+  loadContenidoArchivos(c.id);
 }
 
 async function aprobarContenido(id){
@@ -949,6 +970,86 @@ async function rechazarContenido(id){
 async function changeContenidoEstado(id, estado){
   const { error } = await sb.from('contenido').update({estado,updated_at:new Date().toISOString()}).eq('id',id);
   if(!error){ toast('Estado: '+CONTENT_ESTADOS[estado]); await loadAllData(); renderContenido(); openContenidoDetail(id); }
+}
+
+// ── ARCHIVOS DE CONTENIDO ──────────────────────────────────
+async function loadContenidoArchivos(contenidoId){
+  const el=$(`archivos-list-${contenidoId}`); if(!el) return;
+  try {
+    const { data, error } = await sb.storage.from('entregables').list(`contenido/${contenidoId}`, {sortBy:{column:'created_at',order:'desc'}});
+    if(error || !data || data.length===0){
+      el.innerHTML='<div style="font-size:11px;color:var(--text3)">Sin archivos aún</div>'; return;
+    }
+    el.innerHTML=data.map(f=>{
+      const { data:urlData } = sb.storage.from('entregables').getPublicUrl(`contenido/${contenidoId}/${f.name}`);
+      const url=urlData?.publicUrl||'#';
+      const ext=f.name.split('.').pop().toLowerCase();
+      const isImg=['jpg','jpeg','png','gif','webp'].includes(ext);
+      const isVid=['mp4','mov','avi','webm'].includes(ext);
+      const sizeMB=f.metadata?.size?(f.metadata.size/1024/1024).toFixed(1)+'MB':'';
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
+        ${isImg?`<img src="${url}" style="width:40px;height:40px;object-fit:cover;border-radius:4px" onerror="this.style.display='none'">`
+          :isVid?`<div style="width:40px;height:40px;background:var(--bg3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px">▶</div>`
+          :`<div style="width:40px;height:40px;background:var(--bg3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text3)">${ext.toUpperCase()}</div>`}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>
+          <div style="font-size:10px;color:var(--text3)">${sizeMB}</div>
+        </div>
+        <a href="${url}" target="_blank" class="btn btn-sm btn-ghost" style="text-decoration:none">↗ Ver</a>
+        <button class="btn btn-sm btn-danger" onclick="deleteContenidoArchivo('${contenidoId}','${f.name}')">✕</button>
+      </div>`;
+    }).join('');
+  } catch(e){
+    el.innerHTML='<div style="font-size:11px;color:var(--text3)">No se pudieron cargar los archivos</div>';
+  }
+}
+
+async function uploadContenidoArchivo(input, contenidoId){
+  const files=Array.from(input.files); if(!files.length) return;
+  const prog=$(`upload-progress-${contenidoId}`);
+  const msg=$(`upload-msg-${contenidoId}`);
+  const bar=$(`upload-bar-${contenidoId}`);
+  prog.style.display='block';
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    if(file.size > 50*1024*1024){ toast(`${file.name} supera 50MB`); continue; }
+    msg.textContent=`Subiendo ${file.name}... (${i+1}/${files.length})`;
+    bar.style.width=`${Math.round((i/files.length)*100)}%`;
+    const path=`contenido/${contenidoId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+    const { error } = await sb.storage.from('entregables').upload(path, file, {upsert:true});
+    if(error){
+      if(error.message.includes('Bucket not found')){
+        toast('Bucket "entregables" no existe — créalo en Supabase Storage');
+        prog.style.display='none'; return;
+      }
+      toast('Error subiendo '+file.name+': '+error.message);
+    }
+  }
+  bar.style.width='100%';
+  msg.textContent='¡Listo!';
+  setTimeout(()=>{ prog.style.display='none'; bar.style.width='0'; }, 1500);
+  input.value='';
+  await loadContenidoArchivos(contenidoId);
+  // Update estado to 'revision' automatically
+  if(allData.contenido.find(c=>c.id===contenidoId)?.estado==='diseño'){
+    await sb.from('contenido').update({estado:'revision'}).eq('id',contenidoId);
+    await loadAllData(); renderContenido();
+  }
+  toast('Entregable subido correctamente');
+}
+
+async function handleFileDrop(event, contenidoId){
+  const files=event.dataTransfer.files;
+  if(!files.length) return;
+  const fakeInput={files:files};
+  await uploadContenidoArchivo(fakeInput, contenidoId);
+}
+
+async function deleteContenidoArchivo(contenidoId, fileName){
+  if(!confirm(`¿Eliminar ${fileName}?`)) return;
+  const { error } = await sb.storage.from('entregables').remove([`contenido/${contenidoId}/${fileName}`]);
+  if(!error){ toast('Archivo eliminado'); await loadContenidoArchivos(contenidoId); }
+  else toast('Error: '+error.message);
 }
 
 function openModalContenido(){
