@@ -29,6 +29,64 @@
 window._sbLoaded = false;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="window._sbLoaded=true" onerror="window._sbError=true"></script>
+<script>
+// ── SERVICE WORKER + PUSH NOTIFICATIONS ─────────────────────
+let swReg = null;
+
+async function registerSW(){
+  if(!('serviceWorker' in navigator)) return;
+  try {
+    swReg = await navigator.serviceWorker.register('/sw.js', { scope:'/' });
+    console.log('SW registered');
+  } catch(e){ console.warn('SW failed:', e); }
+}
+
+async function requestPushPermission(){
+  if(!('Notification' in window)) return false;
+  if(Notification.permission === 'granted') return true;
+  if(Notification.permission === 'denied') return false;
+  const perm = await Notification.requestPermission();
+  return perm === 'granted';
+}
+
+// Send a local notification via SW (works even without push server)
+async function sendLocalNotif(title, body, url='/'){
+  const granted = await requestPushPermission();
+  if(!granted) return;
+  if(swReg && swReg.active){
+    swReg.active.postMessage({ type:'NOTIFY', title, body, url });
+  } else if(Notification.permission === 'granted'){
+    new Notification(title, { body, icon:'/icon-192.png' });
+  }
+}
+
+// Check for new notifications from Supabase and push them
+async function checkAndPushNotifications(){
+  if(!currentUser || !sb) return;
+  try {
+    const { data } = await sb.from('notificaciones')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('leida', false)
+      .order('created_at', { ascending:false })
+      .limit(5);
+    if(!data || !data.length) return;
+    // Only notify for notifs created in last 2 minutes (new ones)
+    const recent = data.filter(n => {
+      const age = Date.now() - new Date(n.created_at).getTime();
+      return age < 2 * 60 * 1000;
+    });
+    for(const n of recent){
+      await sendLocalNotif(n.titulo, n.mensaje || '', '/');
+    }
+  } catch(e){}
+}
+
+// Start SW on load
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', registerSW);
+} else { registerSW(); }
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -646,6 +704,30 @@ async function showApp(){
   await loadAllData();
   renderPage('dashboard');
   loadNotifications();
+  // Ask for push notification permission after short delay (better UX)
+  setTimeout(async ()=>{
+    const granted = await requestPushPermission();
+    if(granted) toast('🔔 Notificaciones activadas');
+  }, 2000);
+  // Poll for new notifications every 60 seconds
+  setInterval(()=>{
+    loadNotifications();
+    checkAndPushNotifications();
+  }, 60000);
+  // Realtime: subscribe to new notifs for this user
+  if(currentUser){
+    try {
+      sb.channel('notifs_'+currentUser.id)
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'notificaciones',filter:`user_id=eq.${currentUser.id}`},
+          async (payload)=>{
+            const n = payload.new;
+            await loadNotifications();
+            await sendLocalNotif(n.titulo, n.mensaje||'');
+            updateBadges();
+          }
+        ).subscribe();
+    } catch(e){}
+  }
 }
 
 // Helper: load one table safely — never throws
@@ -923,10 +1005,13 @@ function openModalLead(){
 async function saveLead(){
   const empresa=$('ml-empresa').value.trim(), contacto=$('ml-contacto').value.trim();
   if(!empresa||!contacto){ toast('Completa empresa y contacto'); return; }
-  const obj={company_name:empresa,contact_name:contacto,contact_email:$('ml-email').value,contact_phone:$('ml-tel').value,cargo:$('ml-cargo').value,solution:$('ml-sol').value,source:$('ml-canal').value,deal_value:parseFloat($('ml-valor').value)||null,assigned_to:$('ml-resp').value||null,stage:$('ml-stage').value,notes:$('ml-notas').value};
-  const { error } = await sb.from('leads').insert(obj);
+  const responsableId=$('ml-resp').value||null;
+  const obj={company_name:empresa,contact_name:contacto,contact_email:$('ml-email').value,contact_phone:$('ml-tel').value,cargo:$('ml-cargo').value,solution:$('ml-sol').value,source:$('ml-canal').value,deal_value:parseFloat($('ml-valor').value)||null,assigned_to:responsableId,stage:$('ml-stage').value,notes:$('ml-notas').value};
+  const { data, error } = await sb.from('leads').insert(obj).select().single();
   if(!error){
-    await logHistorial('creó lead','leads',null,empresa,'','');
+    await logHistorial('creó lead','leads',data?.id,empresa,'','');
+    if(responsableId && responsableId!==currentUser.id)
+      await crearNotif(responsableId,'lead_asignado','Nuevo lead asignado',`Empresa: ${empresa} — ${contacto}`,'leads',data?.id);
     toast('Lead creado'); closeModal(); await loadAllData(); renderLeads();
   } else { toast('Error: '+error.message); }
 }
@@ -1029,10 +1114,17 @@ function openModalTarea(){
 
 async function saveTarea(){
   const titulo=$('mt-titulo').value.trim(); if(!titulo){ toast('El título es requerido'); return; }
-  const obj={titulo,descripcion:$('mt-desc').value,categoria:$('mt-cat').value,prioridad:$('mt-prio').value,asignado_a:$('mt-resp').value||null,fecha_limite:$('mt-fecha').value||null,creado_por:currentUser.id,estado:'pendiente'};
-  const { error } = await sb.from('tareas').insert(obj);
-  if(!error){ await logHistorial('creó tarea','tareas',null,titulo,'',''); toast('Tarea creada'); closeModal(); await loadAllData(); renderTareas(); }
-  else toast('Error: '+error.message);
+  const asignadoA=$('mt-resp').value||null;
+  const obj={titulo,descripcion:$('mt-desc').value,categoria:$('mt-cat').value,prioridad:$('mt-prio').value,asignado_a:asignadoA,fecha_limite:$('mt-fecha').value||null,creado_por:currentUser.id,estado:'pendiente'};
+  const { data, error } = await sb.from('tareas').insert(obj).select().single();
+  if(!error){
+    await logHistorial('creó tarea','tareas',data?.id,titulo,'','');
+    // Notify assigned user
+    if(asignadoA && asignadoA !== currentUser.id){
+      await crearNotif(asignadoA,'tarea_asignada','Nueva tarea asignada',`"${titulo}" fue asignada a ti`,'tareas',data?.id);
+    }
+    toast('Tarea creada'); closeModal(); await loadAllData(); renderTareas();
+  } else toast('Error: '+error.message);
 }
 
 // ═══════════════════════════════════════════════
@@ -1137,13 +1229,24 @@ ${c.guion?`<div class="detail-section">
 }
 
 async function aprobarContenido(id){
+  const c=allData.contenido.find(x=>x.id===id);
   const {error}=await sb.from('contenido').update({estado_aprobacion:'aprobado',estado:'aprobado',aprobado_at:new Date().toISOString(),aprobador_id:currentUser.id}).eq('id',id);
-  if(!error){toast('✓ Contenido aprobado');await logHistorial('aprobó contenido','contenido',id,'','pendiente','aprobado');await loadAllData();renderContenido();}
+  if(!error){
+    await logHistorial('aprobó contenido','contenido',id,c?.titulo||'','pendiente','aprobado');
+    if(c?.created_by && c.created_by!==currentUser.id)
+      await crearNotif(c.created_by,'contenido_aprobacion','✓ Contenido aprobado',`"${c?.titulo||id}" fue aprobado`,'contenido',id);
+    toast('✓ Contenido aprobado'); await loadAllData(); renderContenido();
+  }
 }
 async function rechazarContenido(id){
+  const c=allData.contenido.find(x=>x.id===id);
   const motivo=prompt('Motivo del rechazo (opcional):');
   const {error}=await sb.from('contenido').update({estado_aprobacion:'rechazado',comentario_aprobacion:motivo||'',aprobador_id:currentUser.id}).eq('id',id);
-  if(!error){toast('Contenido rechazado');await loadAllData();renderContenido();}
+  if(!error){
+    if(c?.created_by && c.created_by!==currentUser.id)
+      await crearNotif(c.created_by,'contenido_aprobacion','Contenido rechazado',`"${c?.titulo||id}"${motivo?' — '+motivo:''}`,'contenido',id);
+    toast('Contenido rechazado'); await loadAllData(); renderContenido();
+  }
 }
 async function changeContenidoEstado(id, estado){
   const { error } = await sb.from('contenido').update({estado,updated_at:new Date().toISOString()}).eq('id',id);
@@ -1252,10 +1355,15 @@ function openModalContenido(){
 
 async function saveContenido(){
   const titulo=$('mc-titulo').value.trim(); if(!titulo){ toast('El título es requerido'); return; }
-  const obj={titulo,canal:$('mc-canal').value,formato:$('mc-formato').value,fecha_publicacion:$('mc-fecha').value||null,campaña_id:$('mc-camp').value||null,responsable_copy:$('mc-copy').value||null,responsable_diseño:$('mc-diseño').value||null,aprobador_id:$('mc-aprobador').value||null,objetivo:$('mc-obj').value,caption:$('mc-caption').value,hashtags:$('mc-hash').value,estado:'idea',estado_aprobacion:'pendiente',created_by:currentUser.id};
-  const { error } = await sb.from('contenido').insert(obj);
-  if(!error){ await logHistorial('creó contenido','contenido',null,titulo,'',''); toast('Contenido creado'); closeModal(); await loadAllData(); renderContenido(); }
-  else toast('Error: '+error.message);
+  const aprobadorId=$('mc-aprobador').value||null;
+  const obj={titulo,canal:$('mc-canal').value,formato:$('mc-formato').value,fecha_publicacion:$('mc-fecha').value||null,campaña_id:$('mc-camp').value||null,responsable_copy:$('mc-copy').value||null,responsable_diseño:$('mc-diseño').value||null,aprobador_id:aprobadorId,objetivo:$('mc-obj').value,caption:$('mc-caption').value,hashtags:$('mc-hash').value,estado:'idea',estado_aprobacion:'pendiente',created_by:currentUser.id};
+  const { data, error } = await sb.from('contenido').insert(obj).select().single();
+  if(!error){
+    await logHistorial('creó contenido','contenido',data?.id,titulo,'','');
+    if(aprobadorId && aprobadorId!==currentUser.id)
+      await crearNotif(aprobadorId,'contenido_aprobacion','Contenido pendiente de aprobación',`"${titulo}" requiere tu aprobación`,'contenido',data?.id);
+    toast('Contenido creado'); closeModal(); await loadAllData(); renderContenido();
+  } else toast('Error: '+error.message);
 }
 
 // ═══════════════════════════════════════════════
@@ -1886,17 +1994,41 @@ function filterHistorial(tabla, el){
 // ═══════════════════════════════════════════════
 // NOTIFICACIONES
 // ═══════════════════════════════════════════════
+async function crearNotif(userId, tipo, titulo, mensaje, refTabla, refId){
+  if(!userId || !sb) return;
+  try {
+    await sb.from('notificaciones').insert({
+      user_id: userId, tipo, titulo, mensaje,
+      ref_tabla: refTabla||null, ref_id: refId||null, leida: false
+    });
+  } catch(e){}
+}
+
 async function loadNotifications(){
-  if(!currentUser) return;
-  const { data } = await sb.from('notificaciones').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(30);
-  allData.notifs = data||[];
-  const unread=(data||[]).filter(n=>!n.leida).length;
-  $('notif-dot').style.display=unread>0?'block':'none';
-  $('notif-list').innerHTML=(data||[]).map(n=>`<div class="notif-item ${n.leida?'':'unread'}" onclick="markNotifRead('${n.id}')">
-    <div class="notif-item-title">${n.titulo}</div>
-    <div class="notif-item-msg">${n.mensaje||''}</div>
-    <div class="notif-item-time">${timeAgo(n.created_at)}</div>
-  </div>`).join('')||'<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px">Sin notificaciones</div>';
+  if(!currentUser || !sb) return;
+  try {
+    const { data } = await sb.from('notificaciones')
+      .select('*').eq('user_id',currentUser.id)
+      .order('created_at',{ascending:false}).limit(30);
+    allData.notifs = data||[];
+    const unread=(data||[]).filter(n=>!n.leida).length;
+    // Update dot
+    if($('notif-dot')) $('notif-dot').style.display=unread>0?'block':'none';
+    // Update page title with count
+    document.title = unread > 0 ? `(${unread}) Gestión IT · Marketing OS` : 'Gestión IT · Marketing OS';
+    // Render list
+    const list=$('notif-list');
+    if(!list) return;
+    list.innerHTML=(data||[]).map(n=>`
+    <div class="notif-item ${n.leida?'':'unread'}" onclick="markNotifRead('${n.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="notif-item-title">${n.titulo}</div>
+        ${!n.leida?`<div style="width:8px;height:8px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:3px"></div>`:''}
+      </div>
+      <div class="notif-item-msg">${n.mensaje||''}</div>
+      <div class="notif-item-time">${timeAgo(n.created_at)}</div>
+    </div>`).join('')||'<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px">Sin notificaciones</div>';
+  } catch(e){}
 }
 
 async function markNotifRead(id){
